@@ -25,7 +25,7 @@ public class Lib {
         Double factorY = Yinicial - Yfinal;
         Double anguloRadianes = Math.atan(factorY / factorX);
         grados = Math.toDegrees(anguloRadianes);
-        if (Math.abs(factorX / factorY) < 1d) {
+        if (Math.abs(factorX / factorY) < 1d){
             factor = factorX / factorY;
             relacion = factorY / factorX;
             cuadrante = 1;
