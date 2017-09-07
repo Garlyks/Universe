@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0_122.
- */
 package game;
 
 import java.awt.Graphics;
@@ -31,7 +28,7 @@ extends Sprite {
     public void move() {
         Double Xfinal = this.getX() + this.restanteX;
         Double Yfinal = this.getY() + this.restanteY;
-        if (Lib.valorAbsoluto(this.restanteX) + Lib.valorAbsoluto(this.restanteY) > 20d) {
+        if (Math.abs(this.restanteX) + Math.abs(this.restanteY) > 20d) {
             this.direccion = Lib.calcularRotacion(this.getX(), this.getY(), Xfinal, Yfinal);
         }
        
@@ -97,8 +94,8 @@ extends Sprite {
 
     public void calcularRelacionXY() {
         if (this.restanteX != 0d && this.restanteY != 0d) {
-            this.relacionDistanciaXY = 100d * Lib.valorAbsoluto(this.restanteX) / (Lib.valorAbsoluto(this.restanteX) + Lib.valorAbsoluto(this.restanteY)) / 100d;
-            this.relacionDistanciaYX = 100d * Lib.valorAbsoluto(this.restanteY) / (Lib.valorAbsoluto(this.restanteX) + Lib.valorAbsoluto(this.restanteY)) / 100d;
+            this.relacionDistanciaXY = 100d * Math.abs(this.restanteX) / (Math.abs(this.restanteX) + Math.abs(this.restanteY)) / 100d;
+            this.relacionDistanciaYX = 100d * Math.abs(this.restanteY) / (Math.abs(this.restanteX) + Math.abs(this.restanteY)) / 100d;
         }
     }
 

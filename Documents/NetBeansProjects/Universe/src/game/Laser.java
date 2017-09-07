@@ -1,6 +1,4 @@
-/*
- * Decompiled with CFR 0_122.
- */
+
 package game;
 
 import java.awt.Graphics;
@@ -27,8 +25,8 @@ extends Sprite {
         this.setX(Xi);
         Yi = Yi + (double)(nave.getHeight() / 2);
         this.setY(Yi);
-        this.restanteX = Lib.valorAbsoluto(Xi - Xd);
-        this.restanteY = Lib.valorAbsoluto(Yi - Yd);
+        this.restanteX = Math.abs(Xi - Xd);
+        this.restanteY = Math.abs(Yi - Yd);
         this.relacionDistanciaXY = 100.0 * this.restanteX / (this.restanteX + this.restanteY) / 100.0;
         this.relacionDistanciaYX = 100.0 * this.restanteY / (this.restanteX + this.restanteY) / 100.0;
         this.direccion = Lib.calcularRotacion(Xd, Yd, this.getX(), this.getY());
@@ -52,9 +50,9 @@ extends Sprite {
     public void move() {
         if (this.alcance > 0.0) {
             this.setX(this.getX() + this.relacionDistanciaXY * (double)this.velocidad);
-            this.alcance = this.alcance - Lib.valorAbsoluto(this.relacionDistanciaXY * (double)this.velocidad);
+            this.alcance = this.alcance - Math.abs(this.relacionDistanciaXY * (double)this.velocidad);
             this.setY(this.getY() + this.relacionDistanciaYX * (double)this.velocidad);
-            this.alcance = this.alcance - Lib.valorAbsoluto(this.relacionDistanciaYX * (double)this.velocidad);
+            this.alcance = this.alcance - Math.abs(this.relacionDistanciaYX * (double)this.velocidad);
         } else {
             this.destroy();
         }
