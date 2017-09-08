@@ -1,4 +1,4 @@
-package game;
+package game.sprites;
 
 import java.awt.Graphics;
 import javax.swing.ImageIcon;

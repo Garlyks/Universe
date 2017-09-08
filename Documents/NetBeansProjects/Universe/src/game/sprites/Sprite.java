@@ -1,4 +1,4 @@
-package game;
+package game.sprites;
 
 import java.awt.Graphics;
 import javax.swing.ImageIcon;
@@ -18,16 +18,18 @@ public class Sprite {
         return this.visible;
     }
 
-    public void setVisible(boolean estado) {
+    public Sprite setVisible(boolean estado) {
         this.visible = estado;
+        return this;
     }
 
     public Double getX() {
         return this.x;
     }
 
-    public void setX(Double valor) {
+    public Sprite setX(Double valor) {
         this.x = valor;
+        return this;
     }
 
     public void destroy() {
@@ -42,8 +44,9 @@ public class Sprite {
         return this.y;
     }
 
-    public void setY(Double valor) {
+    public Sprite setY(Double valor) {
         this.y = valor;
+        return this;
     }
 
     public int getWidth() {
@@ -53,8 +56,9 @@ public class Sprite {
     public int getHeight() {
         return new ImageIcon(this.getClass().getResource(this.sprite)).getImage().getHeight(null);
     }
-    public void setSprite(String url) {
+    public Sprite setSprite(String url) {
         this.sprite = url;
+        return this;
     }
 
     public String getSprite() {

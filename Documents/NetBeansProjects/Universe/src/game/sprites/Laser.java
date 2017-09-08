@@ -1,5 +1,5 @@
 
-package game;
+package game.sprites;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -20,6 +20,7 @@ extends Sprite {
     Double relacionDistanciaYX = 1.0;
 
     public Laser(Double Xi, Double Yi, Double Xd, Double Yd, Nave nave) {
+        damage *= nave.getDamageAmplifier();
         this.setSprite("/Imagenes/Laser/laser.png");
         Xi = Xi + (double)(nave.getWidth() / 2);
         this.setX(Xi);
@@ -43,7 +44,7 @@ extends Sprite {
         if (this.direccion >= 270.0 && this.direccion < 360.0) {
             this.relacionDistanciaYX = - this.relacionDistanciaYX;
         }
-        this.show();
+        //this.show();
     }
 
     @Override
@@ -99,7 +100,6 @@ extends Sprite {
         this.direccion = Lib.calcularRotacion(this.getX(), this.getY(), Xfinal, Yfinal);
     }
 
-    public void show() {
-    }
+  
 }
 
