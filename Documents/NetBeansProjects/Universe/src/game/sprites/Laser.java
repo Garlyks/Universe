@@ -18,7 +18,9 @@ extends Sprite {
     int velocidad = 20;
     Double relacionDistanciaXY = 1.0;
     Double relacionDistanciaYX = 1.0;
-
+    
+   
+    
     public Laser(Nave naveOrigen, Nave naveDestino) {
         damage *= naveOrigen.getDamageAmplifier();
         this.setSprite("/Imagenes/Laser/laser.png");
@@ -26,8 +28,8 @@ extends Sprite {
         this.setX(Xi);
         double Yi = naveOrigen.getY() + (naveOrigen.getHeight() / 2);
         this.setY(Yi);        
-        double Xd = naveOrigen.getX() + (naveOrigen.getWidth() / 2);
-        double Yd = naveOrigen.getY() + (naveOrigen.getWidth() / 2);
+        double Xd = naveDestino.getX() + (naveDestino.getWidth() / 2);
+        double Yd = naveDestino.getY() + (naveDestino.getWidth() / 2);
         
         configure(Xi,  Yi,  Xd,  Yd );        
     }

@@ -166,8 +166,6 @@ extends Canvas {
                 dificult++;
                 clear = true;
                 setClear();
-                //JOptionPane.showMessageDialog(this.ventana, "You Win", "Alerta", 1);
-                //System.exit(0);
             }
             maxProyectiles = this.proyectilesEnemigos.size();
             for (int i = 0; i < maxProyectiles; ++i) {
@@ -184,8 +182,7 @@ extends Canvas {
                     this.enemies.get(i).moveTo(Lib.getRandomWidth(this), Lib.getRandomHeight(this));                    
                     this.proyectilesEnemigos.add(new Laser(enemies.get(i),myShip));
                 }
-                if (this.tiempo % (long)((int)(Math.random() * 80.0) + 1) != 0 || this.enemies.get((int)i).isDestroing()) continue;
-                
+                if (this.tiempo % (long)((int)(Math.random() * 80.0) + 1) != 0 || this.enemies.get((int)i).isDestroing()) continue;                
                 this.proyectilesEnemigos.add(new Laser(enemies.get(i),myShip));
             }
             if (!this.myShip.mustBeDestroy()) {
@@ -224,8 +221,8 @@ extends Canvas {
             switch (e.getModifiers()) {
                 case 16:
                     Juego.this.myShip.rotar(new Double(e.getX()), new Double(e.getY()));
-                    Laser laser = new Laser(Juego.this.myShip, e.getX(), e.getY());
-                    Juego.this.proyectilesPropios.add(laser);
+                    
+                    Juego.this.proyectilesPropios.add(new Laser(Juego.this.myShip, e.getX(), e.getY()));
                     break;
             // }
                 case 4:
