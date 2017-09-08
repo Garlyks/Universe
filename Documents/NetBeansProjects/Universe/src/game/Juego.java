@@ -181,13 +181,12 @@ extends Canvas {
                     this.enemies.get(i).receiveDamage(1.0);
                 }
                 if ((this.tiempo % 103 == 0 || this.enemies.get((int)i).getRestanteX() == 0.0 && this.enemies.get((int)i).getRestanteY() == 0.0) && !this.enemies.get((int)i).isDestroing()) {
-                    this.enemies.get(i).moveTo(Lib.getRandomWidth(this), Lib.getRandomHeight(this));
-                    Laser laser = new Laser(this.enemies.get(i).getX(), this.enemies.get(i).getY(), this.myShip.getX(), this.myShip.getY(), this.myShip);
-                    this.proyectilesEnemigos.add(laser);
+                    this.enemies.get(i).moveTo(Lib.getRandomWidth(this), Lib.getRandomHeight(this));                    
+                    this.proyectilesEnemigos.add(new Laser(enemies.get(i),myShip));
                 }
                 if (this.tiempo % (long)((int)(Math.random() * 80.0) + 1) != 0 || this.enemies.get((int)i).isDestroing()) continue;
-                Laser laser = new Laser(this.enemies.get(i).getX(), this.enemies.get(i).getY(), this.myShip.getX(), this.myShip.getY(), this.myShip);
-                this.proyectilesEnemigos.add(laser);
+                
+                this.proyectilesEnemigos.add(new Laser(enemies.get(i),myShip));
             }
             if (!this.myShip.mustBeDestroy()) {
                 this.dibuja(this.getGraphics());
@@ -199,6 +198,7 @@ extends Canvas {
             this.tiempo = System.currentTimeMillis();
         } while (!clear);
         clear = false;
+        System.out.println(myShip.getArmor());
         runGame();
     }
     
@@ -224,7 +224,7 @@ extends Canvas {
             switch (e.getModifiers()) {
                 case 16:
                     Juego.this.myShip.rotar(new Double(e.getX()), new Double(e.getY()));
-                    Laser laser = new Laser(Juego.this.myShip.getX(), Juego.this.myShip.getY(), new Double(e.getX()), new Double(e.getY()), Juego.this.myShip);
+                    Laser laser = new Laser(Juego.this.myShip, e.getX(), e.getY());
                     Juego.this.proyectilesPropios.add(laser);
                     break;
             // }
