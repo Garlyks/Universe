@@ -42,8 +42,8 @@ extends Canvas {
 
     public Juego(){
         //cheats
-        myShip.setMaxArmor(5000d);
-        myShip.setDamageAmplifier(25);
+       // myShip.setMaxArmor(5000d);
+        //myShip.setDamageAmplifier(25);
         //configurar y setear cantidad enemigos
         configure();       
         runGame();
@@ -108,9 +108,9 @@ extends Canvas {
         this.marca = new Marca();
         this.ventana = new JFrame();
         this.ventana.setLayout(new BorderLayout());
-        this.controles = new JPanel();
-        this.controles.add(new JButton("OK"));
-        this.ventana.add((Component)this.controles, "South");
+       // this.controles = new JPanel();
+        //this.controles.add(new JButton("OK"));
+        //this.ventana.add((Component)this.controles, "South");
         this.ventana.setSize(1024, 500);
         this.ventana.setExtendedState(6);
         this.ventana.setIconImage(new ImageIcon(this.getClass().getResource("/Imagenes/Marca/marca2b.png")).getImage());
