@@ -1,4 +1,4 @@
-package game;
+package game.sprites;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -7,21 +7,24 @@ import javax.swing.ImageIcon;
 import util.ImageTransform;
 import util.Lib;
 
-public final class Splitter
+public class Nave
 extends Sprite {
-    Double direccion = 0d;
-    Double restanteX = 0d;
-    Double restanteY = 0d;
-    Double health = 120d;
     int iterator = 0;
     int velocidad = 5;
-    Double relacionDistanciaXY = 1d;
-    Double relacionDistanciaYX = 1d;
-
-    public Splitter() {
-        this.setSprite("/Imagenes/Splitter/Splitter.png");
-        this.setX(400d);
-        this.setY(400d);
+    
+    double direccion = 0d;
+    double restanteX = 0d;
+    double restanteY = 0d;
+    double hp = 120d;
+    
+    double relacionDistanciaXY = 1d;
+    double relacionDistanciaYX = 1d;
+    double damageAmplifier = 1;
+    
+    public Nave() {
+        this.setSprite("/Imagenes/Nave/nave.png");
+        this.setX(200d);
+        this.setY(200d);
     }
 
     @Override
@@ -73,12 +76,12 @@ extends Sprite {
         return this.direccion;
     }
 
-    public Double getHealth() {
-        return this.health;
+    public Double getHp() {
+        return this.hp;
     }
 
-    public void setHealth(Double health) {
-        this.health = health;
+    public void setHp(Double hp) {
+        this.hp = hp;
     }
 
     public void moveTo(Double x, Double y) {
@@ -88,7 +91,6 @@ extends Sprite {
         }
         Double Xfinal = this.getX() + this.restanteX;
         Double Yfinal = this.getY() + this.restanteY;
-        System.out.println("Y: " + this.restanteY + " X: " + this.restanteX);
         this.direccion = Lib.calcularRotacion(this.getX(), this.getY(), Xfinal, Yfinal);
         this.calcularRelacionXY();
     }
@@ -109,8 +111,7 @@ extends Sprite {
         this.setX(coordenadaHorizontal);
         this.setY(coordenadaVertical);
         BufferedImage image = Lib.toBufferedImage(new ImageIcon(this.getClass().getResource(this.getSprite())).getImage());
-        Double direccionT = (double)this.direccion;
-        image = ImageTransform.rotacionImagen(image, direccionT);
+        image = ImageTransform.rotacionImagen(image, this.direccion);
         if (this.isVisible()) {
             grafico.drawImage(image, this.getX().intValue(), this.getY().intValue(), null);
         }
@@ -124,6 +125,62 @@ extends Sprite {
         if (this.isVisible()) {
             grafico.drawImage(image, this.getX().intValue(), this.getY().intValue(), null);
         }
+    }
+
+    public Double getRestanteX() {
+        return restanteX;
+    }
+
+    public void setRestanteX(Double restanteX) {
+        this.restanteX = restanteX;
+    }
+
+    public Double getRestanteY() {
+        return restanteY;
+    }
+
+    public void setRestanteY(Double restanteY) {
+        this.restanteY = restanteY;
+    }
+
+    public int getIterator() {
+        return iterator;
+    }
+
+    public void setIterator(int iterator) {
+        this.iterator = iterator;
+    }
+
+    public int getVelocidad() {
+        return velocidad;
+    }
+
+    public void setVelocidad(int velocidad) {
+        this.velocidad = velocidad;
+    }
+
+    public Double getRelacionDistanciaXY() {
+        return relacionDistanciaXY;
+    }
+
+    public void setRelacionDistanciaXY(Double relacionDistanciaXY) {
+        this.relacionDistanciaXY = relacionDistanciaXY;
+    }
+
+    public Double getRelacionDistanciaYX() {
+        return relacionDistanciaYX;
+    }
+
+    public void setRelacionDistanciaYX(Double relacionDistanciaYX) {
+        this.relacionDistanciaYX = relacionDistanciaYX;
+    }
+    
+    public double getDamageAmplifier() {
+        return damageAmplifier;
+    }
+
+    public void setDamageAmplifier(double damageAmplifier) {
+        this.damageAmplifier = damageAmplifier;
     }
 }
 

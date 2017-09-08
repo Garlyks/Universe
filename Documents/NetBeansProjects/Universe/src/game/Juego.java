@@ -1,5 +1,9 @@
 package game;
 
+import game.sprites.Laser;
+import game.sprites.Sprite;
+import game.sprites.Enemy;
+import game.sprites.Marca;
 import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Component;
@@ -15,125 +19,36 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import util.Lib;
 
 public final class Juego
 extends Canvas {
-    private ArrayList<Sprite> spritesStaticos = new ArrayList();
-    private ArrayList<Sprite> spritesDinamicos = new ArrayList();
-    private ArrayList<Enemy> enemys = new ArrayList();
-    private ArrayList<Sprite> proyectiles = new ArrayList();
-    private ArrayList<Sprite> proyectilesEnemigos = new ArrayList();
+    private final ArrayList<Sprite> spritesStaticos = new ArrayList();
+    private final ArrayList<Sprite> spritesDinamicos = new ArrayList();
+    private final ArrayList<Enemy> enemies = new ArrayList();
+    private final ArrayList<Sprite> proyectilesPropios = new ArrayList();
+    private final ArrayList<Sprite> proyectilesEnemigos = new ArrayList();
     private Frame ventana;
-    private Sprite planeta = new Sprite();
-    private Sprite fondo = new Sprite();
-    private Enemy nave = new Enemy();
+    private final Sprite planeta = new Sprite();
+    private final Sprite fondo = new Sprite();
+    private final Enemy myShip = new Enemy();
     private Marca marca;
     BufferedImage pantalla;
     int refreshTime = 25;
     long tiempo = System.currentTimeMillis();
     JPanel controles;
+    private int dificult = 1;
+    private boolean clear = false;
 
-    public Juego() {
-        this.nave.shield_resistance = 15.0;
-        this.nave.shield_regeneration = 0.2;
-        Enemy spitter = new Enemy();
-        spitter.setSprite("/Imagenes/Nave/splitter.png");
-        spitter.setX(500.0);
-        spitter.setY(500.0);
-        Enemy spitter2 = new Enemy();
-        spitter2.setSprite("/Imagenes/Nave/splitter.png");
-        spitter2.setX(700.0);
-        spitter2.setY(500.0);
-        Enemy spitter3 = new Enemy();
-        spitter3.setSprite("/Imagenes/Nave/splitter.png");
-        spitter3.setX(700.0);
-        spitter3.setY(500.0);
-        this.enemys.add(spitter);
-        this.enemys.add(spitter2);
-        this.enemys.add(spitter3);
-        this.marca = new Marca();
-        this.ventana = new JFrame();
-        this.ventana.setLayout(new BorderLayout());
-        this.controles = new JPanel();
-        this.controles.add(new JButton("OK"));
-        this.ventana.add((Component)this.controles, "South");
-        this.ventana.setSize(1024, 500);
-        this.ventana.setExtendedState(6);
-        this.ventana.setIconImage(new ImageIcon(this.getClass().getResource("/Imagenes/Marca/marca2b.png")).getImage());
-        this.ventana.add(this);
-        this.ventana.setVisible(true);
-        this.ventana.addWindowListener(new WindowAdapter(){
-
-            @Override
-            public void windowClosing(WindowEvent e) {
-                System.exit(0);
-            }
-        });
-        this.planeta.setSprite("/Imagenes/planeta-agua.png");
-        this.fondo.setSprite("/Imagenes/space.jpg");
-        this.planeta.setX(80.0);
-        this.planeta.setY(80.0);
-        this.spritesStaticos.add(this.fondo);
-        this.spritesStaticos.add(this.planeta);
-        this.spritesDinamicos.add(this.marca);
-        this.spritesDinamicos.add(this.nave);
-        MouseEvent mouse = new MouseEvent();
-        this.addMouseListener(mouse);
-        do {
-            int i;
-            if (System.currentTimeMillis() - this.tiempo <= (long)this.refreshTime) {
-                continue;
-            }
-            if (this.marca.isVisible() && this.marca.intecerpta(this.nave)) {
-                this.marca.setVisible(false);
-            }
-            int maxProyectiles = this.proyectiles.size();
-            int maxEnemies = this.enemys.size();
-            for (i = 0; i < maxProyectiles; ++i) {
-                for (int j = 0; j < maxEnemies; ++j) {
-                    if (!this.enemys.get(j).intecerpta(this.proyectiles.get(i))) continue;
-                    this.enemys.get(j).receiveDamage(((Laser)this.proyectiles.get(i)).hit());
-                }
-            }
-            if (maxEnemies == 0) {
-                JOptionPane.showMessageDialog(this.ventana, "You Win", "Alerta", 1);
-                System.exit(0);
-            }
-            maxProyectiles = this.proyectilesEnemigos.size();
-            for (i = 0; i < maxProyectiles; ++i) {
-                if (!this.nave.intecerpta(this.proyectilesEnemigos.get(i))) continue;
-                this.nave.receiveDamage(((Laser)this.proyectilesEnemigos.get(i)).hit());
-            }
-            maxEnemies = this.enemys.size();
-            for (i = 0; i < maxEnemies; ++i) {
-                if (this.nave.intecerpta(this.enemys.get(i)) && !this.nave.mustBeDestroy()) {
-                    this.nave.receiveDamage(1.0);
-                    this.enemys.get(i).receiveDamage(1.0);
-                }
-                if ((this.tiempo % 103 == 0 || this.enemys.get((int)i).restanteX == 0.0 && this.enemys.get((int)i).restanteY == 0.0) && !this.enemys.get((int)i).isDestroing) {
-                    int minimum = 0;
-                    int maximum = this.getWidth();
-                    int max_vetical = this.getHeight();
-                    int randomNum1 = minimum + (int)(Math.random() * (double)maximum);
-                    int randomNum2 = minimum + (int)(Math.random() * (double)max_vetical);
-                    this.enemys.get(i).moveTo(new Double(randomNum1), new Double(randomNum2));
-                    Laser laser = new Laser(this.enemys.get(i).getX(), this.enemys.get(i).getY(), this.nave.getX(), this.nave.getY(), this.nave);
-                    this.proyectilesEnemigos.add(laser);
-                }
-                if (this.tiempo % (long)((int)(Math.random() * 80.0) + 1) != 0 || this.enemys.get((int)i).isDestroing) continue;
-                Laser laser = new Laser(this.enemys.get(i).getX(), this.enemys.get(i).getY(), this.nave.getX(), this.nave.getY(), this.nave);
-                this.proyectilesEnemigos.add(laser);
-            }
-            if (!this.nave.mustBeDestroy()) {
-                this.dibuja(this.getGraphics());
-            } else {
-                JOptionPane.showMessageDialog(this.ventana, "You Lose", "Alerta", 1);
-                System.exit(0);
-            }
-            this.tiempo = System.currentTimeMillis();
-        } while (true);
-    }
-
+    public Juego(){
+        //cheats
+        myShip.setMaxArmor(5000d);
+        myShip.setDamageAmplifier(25);
+        //configurar y setear cantidad enemigos
+        configure();       
+        runGame();
+    }    
+    
     public void dibuja(Graphics grafico) {
         int i;
         this.pantalla = new BufferedImage(this.getWidth(), this.getHeight(), 1);
@@ -158,14 +73,14 @@ extends Canvas {
             this.spritesDinamicos.get(i3).move();
             this.spritesDinamicos.get(i3).putSprite(this.pantalla.getGraphics());
         }
-        int cantidadProyectiles = this.proyectiles.size();
+        int cantidadProyectiles = this.proyectilesPropios.size();
         for (i = 0; i < cantidadProyectiles; ++i) {
-            if (this.proyectiles.get(i).mustBeDestroy()) {
-                this.proyectiles.remove(i);
+            if (this.proyectilesPropios.get(i).mustBeDestroy()) {
+                this.proyectilesPropios.remove(i);
                 break;
             }
-            this.proyectiles.get(i).move();
-            this.proyectiles.get(i).putSprite(this.pantalla.getGraphics());
+            this.proyectilesPropios.get(i).move();
+            this.proyectilesPropios.get(i).putSprite(this.pantalla.getGraphics());
         }
         cantidadProyectiles = this.proyectilesEnemigos.size();
         for (i = 0; i < cantidadProyectiles; ++i) {
@@ -176,18 +91,114 @@ extends Canvas {
             this.proyectilesEnemigos.get(i).move();
             this.proyectilesEnemigos.get(i).putSprite(this.pantalla.getGraphics());
         }
-        int cantidadEnemys = this.enemys.size();
+        int cantidadEnemys = this.enemies.size();
         for (int i4 = 0; i4 < cantidadEnemys; ++i4) {
-            if (((Sprite)this.enemys.get(i4)).mustBeDestroy()) {
-                this.enemys.remove(i4);
+            if (((Sprite)this.enemies.get(i4)).mustBeDestroy()) {
+                this.enemies.remove(i4);
                 break;
             }
-            ((Sprite)this.enemys.get(i4)).move();
-            ((Sprite)this.enemys.get(i4)).putSprite(this.pantalla.getGraphics());
+            ((Sprite)this.enemies.get(i4)).move();
+            ((Sprite)this.enemies.get(i4)).putSprite(this.pantalla.getGraphics());
         }
         grafico.drawImage(this.pantalla, 0, 0, this);
     }
-
+    
+    public void configure(){
+        
+        this.marca = new Marca();
+        this.ventana = new JFrame();
+        this.ventana.setLayout(new BorderLayout());
+        this.controles = new JPanel();
+        this.controles.add(new JButton("OK"));
+        this.ventana.add((Component)this.controles, "South");
+        this.ventana.setSize(1024, 500);
+        this.ventana.setExtendedState(6);
+        this.ventana.setIconImage(new ImageIcon(this.getClass().getResource("/Imagenes/Marca/marca2b.png")).getImage());
+        this.ventana.add(this);
+        this.ventana.setVisible(true);
+        this.ventana.addWindowListener(new WindowAdapter(){
+            @Override
+            public void windowClosing(WindowEvent e) {
+                System.exit(0);
+            }
+        });
+         
+        this.planeta.setSprite("/Imagenes/planeta-agua.png");
+        this.fondo.setSprite("/Imagenes/space.jpg");
+        this.planeta.setX(80.0);
+        this.planeta.setY(80.0);
+        this.spritesStaticos.add(this.fondo);
+        this.spritesStaticos.add(this.planeta);
+        this.spritesDinamicos.add(this.marca);
+        this.spritesDinamicos.add(this.myShip);
+        
+        this.addMouseListener(new MouseEvent());        
+        setClear();
+    }
+    
+    
+    public void setClear(){       
+        //set enemies
+        enemies.clear();
+        for (int i = 0; i<dificult; i++){
+            this.enemies.add((Enemy) new Enemy().setX(Lib.getRandomWidth(this)).setY(Lib.getRandomHeight(this)).setSprite("/Imagenes/Nave/splitter.png"));
+        }
+    }
+    
+    public void runGame(){
+        
+        do {            
+            if (System.currentTimeMillis() - this.tiempo <= (long)this.refreshTime) {
+                continue;
+            }
+            if (this.marca.isVisible() && this.marca.intecerpta(this.myShip)) {
+                this.marca.setVisible(false);
+            }
+            int maxProyectiles = this.proyectilesPropios.size();
+            int maxEnemies = this.enemies.size();
+            for (int i = 0; i < maxProyectiles; ++i) {
+                for (int j = 0; j < maxEnemies; ++j) {
+                    if (!this.enemies.get(j).intecerpta(this.proyectilesPropios.get(i))) continue;
+                    this.enemies.get(j).receiveDamage(((Laser)this.proyectilesPropios.get(i)).hit());
+                }
+            }
+            if (maxEnemies == 0) {
+                dificult++;
+                clear = true;
+                setClear();
+            }
+            maxProyectiles = this.proyectilesEnemigos.size();
+            for (int i = 0; i < maxProyectiles; ++i) {
+                if (!this.myShip.intecerpta(this.proyectilesEnemigos.get(i))) continue;
+                this.myShip.receiveDamage(((Laser)this.proyectilesEnemigos.get(i)).hit());
+            }
+            maxEnemies = this.enemies.size();
+            for (int i = 0; i < maxEnemies; ++i) {
+                if (this.myShip.intecerpta(this.enemies.get(i)) && !this.myShip.mustBeDestroy()) {
+                    this.myShip.receiveDamage(1.0);
+                    this.enemies.get(i).receiveDamage(1.0);
+                }
+                if ((this.tiempo % 103 == 0 || this.enemies.get((int)i).getRestanteX() == 0.0 && this.enemies.get((int)i).getRestanteY() == 0.0) && !this.enemies.get((int)i).isDestroing()) {
+                    this.enemies.get(i).moveTo(Lib.getRandomWidth(this), Lib.getRandomHeight(this));                    
+                    this.proyectilesEnemigos.add(new Laser(enemies.get(i),myShip));
+                }
+                if (this.tiempo % (long)((int)(Math.random() * 80.0) + 1) != 0 || this.enemies.get((int)i).isDestroing()) continue;                
+                this.proyectilesEnemigos.add(new Laser(enemies.get(i),myShip));
+            }
+            if (!this.myShip.mustBeDestroy()) {
+                this.dibuja(this.getGraphics());
+            } else {
+                JOptionPane.showMessageDialog(this.ventana, "You Lose", "Alerta", 1);
+                System.exit(0);
+               
+            }
+            this.tiempo = System.currentTimeMillis();
+        } while (!clear);
+        clear = false;
+        System.out.println(myShip.getArmor());
+        runGame();
+    }
+    
     public static void main(String[] arg) {
         Juego game = new Juego();
     }
@@ -199,7 +210,7 @@ extends Canvas {
 
         @Override
         public void mouseClicked(java.awt.event.MouseEvent e) {
-            if (!Juego.this.nave.isIn(new Double(e.getX()), new Double(e.getY())) || e.getModifiers() == 16 || e.getModifiers() == 4 || e.getModifiers() == 8) {
+            if (!Juego.this.myShip.isIn(new Double(e.getX()), new Double(e.getY())) || e.getModifiers() == 16 || e.getModifiers() == 4 || e.getModifiers() == 8) {
                 // empty if block
             }
         }
@@ -209,18 +220,18 @@ extends Canvas {
             //if (!Juego.access$100((Juego)Juego.this).isDestroing) {
             switch (e.getModifiers()) {
                 case 16:
-                    Juego.this.nave.rotar(new Double(e.getX()), new Double(e.getY()));
-                    Laser laser = new Laser(Juego.this.nave.getX(), Juego.this.nave.getY(), new Double(e.getX()), new Double(e.getY()), Juego.this.nave);
-                    Juego.this.proyectiles.add(laser);
+                    Juego.this.myShip.rotar(new Double(e.getX()), new Double(e.getY()));
+                    
+                    Juego.this.proyectilesPropios.add(new Laser(Juego.this.myShip, e.getX(), e.getY()));
                     break;
             // }
                 case 4:
                     int x = e.getX();
                     int y = e.getY();
-                    int minimoX = Juego.this.nave.getWidth() / 2;
-                    int maximoX = Juego.this.pantalla.getWidth() - Juego.this.nave.getWidth() / 2;
-                    int minimoY = Juego.this.nave.getHeight() / 2;
-                    int maximoY = Juego.this.pantalla.getHeight() - Juego.this.nave.getHeight() / 2 - Juego.this.controles.getHeight() / 2;
+                    int minimoX = Juego.this.myShip.getWidth() / 2;
+                    int maximoX = Juego.this.pantalla.getWidth() - Juego.this.myShip.getWidth() / 2;
+                    int minimoY = Juego.this.myShip.getHeight() / 2;
+                    int maximoY = Juego.this.pantalla.getHeight() - Juego.this.myShip.getHeight() / 2 - Juego.this.controles.getHeight() / 2;
                     if (x < minimoX) {
                         x = minimoX;
                     } else if (x > maximoX) {
@@ -231,7 +242,7 @@ extends Canvas {
                     } else if (y > maximoY) {
                         y = maximoY;
                     }
-                    Juego.this.nave.moveTo(new Double(x), new Double(y));
+                    Juego.this.myShip.moveTo(new Double(x), new Double(y));
                     Juego.this.marca.setVisible(true);
                     Juego.this.marca.moveTo(new Double(x), new Double(y));
                     break;            

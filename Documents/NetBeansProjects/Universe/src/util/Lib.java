@@ -1,5 +1,6 @@
 package util;
 
+import java.awt.Canvas;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -55,6 +56,15 @@ public class Lib {
             grados = 0d;
         }
         return grados;
+    }
+
+    public static Double getRandomHeight(Canvas canvas){
+       
+        return 0d + (Math.random() * canvas.getHeight());
+    }
+    
+    public static Double getRandomWidth(Canvas canvas){
+        return 0d + (Math.random() * canvas.getWidth());
     }
 }
 

@@ -1,5 +1,5 @@
 
-package game;
+package game.sprites;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -18,13 +18,32 @@ extends Sprite {
     int velocidad = 20;
     Double relacionDistanciaXY = 1.0;
     Double relacionDistanciaYX = 1.0;
-
-    public Laser(Double Xi, Double Yi, Double Xd, Double Yd, Nave nave) {
+    
+   
+    
+    public Laser(Nave naveOrigen, Nave naveDestino) {
+        damage *= naveOrigen.getDamageAmplifier();
         this.setSprite("/Imagenes/Laser/laser.png");
-        Xi = Xi + (double)(nave.getWidth() / 2);
+        double Xi = naveOrigen.getX() + (naveOrigen.getWidth() / 2);        
         this.setX(Xi);
-        Yi = Yi + (double)(nave.getHeight() / 2);
-        this.setY(Yi);
+        double Yi = naveOrigen.getY() + (naveOrigen.getHeight() / 2);
+        this.setY(Yi);        
+        double Xd = naveDestino.getX() + (naveDestino.getWidth() / 2);
+        double Yd = naveDestino.getY() + (naveDestino.getWidth() / 2);
+        
+        configure(Xi,  Yi,  Xd,  Yd );        
+    }
+    public Laser(Nave naveOrigen, double XDestino, double YDestino) {
+        damage *= naveOrigen.getDamageAmplifier();
+        this.setSprite("/Imagenes/Laser/laser.png");
+        double Xi = naveOrigen.getX() + (naveOrigen.getWidth() / 2);        
+        this.setX(Xi);
+        double Yi = naveOrigen.getY() + (naveOrigen.getHeight() / 2);
+        this.setY(Yi);   
+        configure(Xi,  Yi,  XDestino,  YDestino ); 
+    }
+    
+    public void configure(double Xi, double Yi, double Xd, double Yd ){
         this.restanteX = Math.abs(Xi - Xd);
         this.restanteY = Math.abs(Yi - Yd);
         this.relacionDistanciaXY = 100.0 * this.restanteX / (this.restanteX + this.restanteY) / 100.0;
@@ -43,9 +62,8 @@ extends Sprite {
         if (this.direccion >= 270.0 && this.direccion < 360.0) {
             this.relacionDistanciaYX = - this.relacionDistanciaYX;
         }
-        this.show();
     }
-
+    
     @Override
     public void move() {
         if (this.alcance > 0.0) {
@@ -99,7 +117,6 @@ extends Sprite {
         this.direccion = Lib.calcularRotacion(this.getX(), this.getY(), Xfinal, Yfinal);
     }
 
-    public void show() {
-    }
+  
 }
 

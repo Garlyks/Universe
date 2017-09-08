@@ -1,4 +1,4 @@
-package game;
+package game.sprites;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -7,21 +7,21 @@ import javax.swing.ImageIcon;
 import util.ImageTransform;
 import util.Lib;
 
-public class Nave
+public final class Splitter
 extends Sprite {
     Double direccion = 0d;
     Double restanteX = 0d;
     Double restanteY = 0d;
-    Double hp = 120d;
+    Double health = 120d;
     int iterator = 0;
     int velocidad = 5;
     Double relacionDistanciaXY = 1d;
     Double relacionDistanciaYX = 1d;
 
-    public Nave() {
-        this.setSprite("/Imagenes/Nave/nave.png");
-        this.setX(200d);
-        this.setY(200d);
+    public Splitter() {
+        this.setSprite("/Imagenes/Splitter/Splitter.png");
+        this.setX(400d);
+        this.setY(400d);
     }
 
     @Override
@@ -73,12 +73,12 @@ extends Sprite {
         return this.direccion;
     }
 
-    public Double getHp() {
-        return this.hp;
+    public Double getHealth() {
+        return this.health;
     }
 
-    public void setHp(Double hp) {
-        this.hp = hp;
+    public void setHealth(Double health) {
+        this.health = health;
     }
 
     public void moveTo(Double x, Double y) {
@@ -88,6 +88,7 @@ extends Sprite {
         }
         Double Xfinal = this.getX() + this.restanteX;
         Double Yfinal = this.getY() + this.restanteY;
+        System.out.println("Y: " + this.restanteY + " X: " + this.restanteX);
         this.direccion = Lib.calcularRotacion(this.getX(), this.getY(), Xfinal, Yfinal);
         this.calcularRelacionXY();
     }
@@ -108,7 +109,8 @@ extends Sprite {
         this.setX(coordenadaHorizontal);
         this.setY(coordenadaVertical);
         BufferedImage image = Lib.toBufferedImage(new ImageIcon(this.getClass().getResource(this.getSprite())).getImage());
-        image = ImageTransform.rotacionImagen(image, this.direccion);
+        Double direccionT = (double)this.direccion;
+        image = ImageTransform.rotacionImagen(image, direccionT);
         if (this.isVisible()) {
             grafico.drawImage(image, this.getX().intValue(), this.getY().intValue(), null);
         }
