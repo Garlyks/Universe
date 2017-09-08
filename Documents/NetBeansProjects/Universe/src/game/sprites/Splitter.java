@@ -88,7 +88,6 @@ extends Sprite {
         }
         Double Xfinal = this.getX() + this.restanteX;
         Double Yfinal = this.getY() + this.restanteY;
-        System.out.println("Y: " + this.restanteY + " X: " + this.restanteX);
         this.direccion = Lib.calcularRotacion(this.getX(), this.getY(), Xfinal, Yfinal);
         this.calcularRelacionXY();
     }

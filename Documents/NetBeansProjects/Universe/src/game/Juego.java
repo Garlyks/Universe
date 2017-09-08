@@ -37,7 +37,7 @@ extends Canvas {
     int refreshTime = 25;
     long tiempo = System.currentTimeMillis();
     JPanel controles;
-    private int dificult = 1;
+    private int dificult = 0;
     private boolean clear = false;
 
     public Juego(){
@@ -195,7 +195,6 @@ extends Canvas {
             this.tiempo = System.currentTimeMillis();
         } while (!clear);
         clear = false;
-        System.out.println(myShip.getArmor());
         runGame();
     }
     
@@ -216,8 +215,7 @@ extends Canvas {
         }
 
         @Override
-        public void mousePressed(java.awt.event.MouseEvent e) {
-            //if (!Juego.access$100((Juego)Juego.this).isDestroing) {
+        public void mousePressed(java.awt.event.MouseEvent e) {           
             switch (e.getModifiers()) {
                 case 16:
                     Juego.this.myShip.rotar(new Double(e.getX()), new Double(e.getY()));
@@ -231,7 +229,7 @@ extends Canvas {
                     int minimoX = Juego.this.myShip.getWidth() / 2;
                     int maximoX = Juego.this.pantalla.getWidth() - Juego.this.myShip.getWidth() / 2;
                     int minimoY = Juego.this.myShip.getHeight() / 2;
-                    int maximoY = Juego.this.pantalla.getHeight() - Juego.this.myShip.getHeight() / 2 - Juego.this.controles.getHeight() / 2;
+                    int maximoY = Juego.this.pantalla.getHeight() - Juego.this.myShip.getHeight() / 2 ;
                     if (x < minimoX) {
                         x = minimoX;
                     } else if (x > maximoX) {
