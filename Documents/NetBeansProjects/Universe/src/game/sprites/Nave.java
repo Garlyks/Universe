@@ -12,120 +12,121 @@ extends Sprite {
     int iterator = 0;
     int velocidad = 5;
     
-    double direccion = 0d;
-    double restanteX = 0d;
-    double restanteY = 0d;
-    double hp = 120d;
+    double direccion = 0;
+    double restanteX = 0;
+    double restanteY = 0;
+    double hp = 120;
     
     double relacionDistanciaXY = 1d;
     double relacionDistanciaYX = 1d;
     double damageAmplifier = 1;
     
     public Nave() {
-        this.setSprite("/Imagenes/Nave/nave.png");
-        this.setX(200d);
-        this.setY(200d);
+        //super(this);
+        setSprite("/Imagenes/Nave/nave.png");
+        setX(200d);
+        setY(200d);
     }
 
 
     @Override
     public Nave move() {
-        Double Xfinal = this.getX() + this.restanteX;
-        Double Yfinal = this.getY() + this.restanteY;
-        if (Math.abs(this.restanteX) + Math.abs(this.restanteY) > 20d) {
-            this.direccion = Lib.calcularRotacion(this.getX(), this.getY(), Xfinal, Yfinal);
+        Double Xfinal = getX() + restanteX;
+        Double Yfinal = getY() + restanteY;
+        if (Math.abs(restanteX) + Math.abs(restanteY) > 20) {
+            direccion = Lib.calcularRotacion(getX(), getY(), Xfinal, Yfinal);
         }
        
-        Double velocidadX = (double)this.velocidad * this.relacionDistanciaXY;
-        Double velocidadY = (double)this.velocidad * this.relacionDistanciaYX;
-        if (this.restanteX > 0d) {
-            this.setX(this.getX() - velocidadX);
-            this.restanteX = this.restanteX - velocidadX;
-            if (this.restanteX < velocidadX) {
-                this.restanteX = 0d;
+        Double velocidadX = (double)velocidad * relacionDistanciaXY;
+        Double velocidadY = (double)velocidad * relacionDistanciaYX;
+        if (restanteX > 0) {
+            setX(getX() - velocidadX);
+            restanteX = restanteX - velocidadX;
+            if (restanteX < velocidadX) {
+                restanteX = 0;
             }
-        } else if (this.restanteX < 0d) {
-            this.setX(this.getX() + velocidadX);
-            this.restanteX = this.restanteX + velocidadX;
+        } else if (restanteX < 0) {
+            setX(getX() + velocidadX);
+            restanteX = restanteX + velocidadX;
         }
-        if (this.restanteY > 0d) {
-            this.setY(this.getY() - velocidadY);
-            this.restanteY = this.restanteY - velocidadY;
-            if (this.restanteY < velocidadY) {
-                this.restanteY = 0d;
+        if (restanteY > 0) {
+            setY(getY() - velocidadY);
+            restanteY = restanteY - velocidadY;
+            if (restanteY < velocidadY) {
+                restanteY = 0;
             }
-        } else if (this.restanteY < 0d) {
-            this.setY(this.getY() + velocidadY);
-            this.restanteY = this.restanteY + velocidadY;
+        } else if (restanteY < 0) {
+            setY(getY() + velocidadY);
+            restanteY = restanteY + velocidadY;
         }
-        if (this.restanteX == 0d & this.restanteY == 0d) {
-            ++this.iterator;
-            if (this.iterator == 10) {
-                this.setX(this.getX() + 1d);
-            } else if (this.iterator == 20) {
-                this.setY(this.getY() - 1d);
-            } else if (this.iterator == 30) {
-                this.setX(this.getX() - 1d);
-            } else if (this.iterator > 40) {
-                this.setY(this.getY() + 1d);
-                this.iterator = 0;
+        if (restanteX == 0 & restanteY == 0) {
+            ++iterator;
+            if (iterator == 10) {
+                setX(getX() + 1d);
+            } else if (iterator == 20) {
+                setY(getY() - 1d);
+            } else if (iterator == 30) {
+                setX(getX() - 1d);
+            } else if (iterator > 40) {
+                setY(getY() + 1d);
+                iterator = 0;
             }
         }
         return this;
     }
 
     public Double getDireccion() {
-        return this.direccion;
+        return direccion;
     }
 
     public Double getHp() {
-        return this.hp;
+        return hp;
     }
 
     public void setHp(Double hp) {
-        this.hp = hp;
+        hp = hp;
     }
 
     public void moveTo(Double x, Double y) {
-        if (!Objects.equals(this.getX(), x) && !Objects.equals(this.getY(), y)) {
-            this.restanteX = this.getX() - (x - (double)(this.getWidth() / 2));
-            this.restanteY = this.getY() - (y - (double)(this.getHeight() / 2));
+        if (!Objects.equals(getX(), x) && !Objects.equals(getY(), y)) {
+            restanteX = getX() - (x - (double)(getWidth() / 2));
+            restanteY = getY() - (y - (double)(getHeight() / 2));
         }
-        Double Xfinal = this.getX() + this.restanteX;
-        Double Yfinal = this.getY() + this.restanteY;
-        this.direccion = Lib.calcularRotacion(this.getX(), this.getY(), Xfinal, Yfinal);
-        this.calcularRelacionXY();
+        Double Xfinal = getX() + restanteX;
+        Double Yfinal = getY() + restanteY;
+        direccion = Lib.calcularRotacion(getX(), getY(), Xfinal, Yfinal);
+        calcularRelacionXY();
     }
 
     public void calcularRelacionXY() {
-        if (this.restanteX != 0d && this.restanteY != 0d) {
-            this.relacionDistanciaXY = 100d * Math.abs(this.restanteX) / (Math.abs(this.restanteX) + Math.abs(this.restanteY)) / 100d;
-            this.relacionDistanciaYX = 100d * Math.abs(this.restanteY) / (Math.abs(this.restanteX) + Math.abs(this.restanteY)) / 100d;
+        if (restanteX != 0 && restanteY != 0) {
+            relacionDistanciaXY = 100 * Math.abs(restanteX) / (Math.abs(restanteX) + Math.abs(restanteY)) / 100;
+            relacionDistanciaYX = 100 * Math.abs(restanteY) / (Math.abs(restanteX) + Math.abs(restanteY)) / 100;
         }
     }
 
     public void rotar(Double x, Double y) {
-        this.direccion = Lib.calcularRotacion(x, y, this.getX(), this.getY());
+        direccion = Lib.calcularRotacion(x, y, getX(), getY());
     }
 
     @Override
     public void putSprite(Graphics grafico, Double coordenadaHorizontal, Double coordenadaVertical) {
-        this.setX(coordenadaHorizontal);
-        this.setY(coordenadaVertical);
-        BufferedImage image = Lib.toBufferedImage(new ImageIcon(this.getClass().getResource(this.getSprite())).getImage());
-        image = ImageTransform.rotacionImagen(image, this.direccion);
-        if (this.isVisible()) {
-            grafico.drawImage(image, this.getX().intValue(), this.getY().intValue(), null);
+        setX(coordenadaHorizontal);
+        setY(coordenadaVertical);
+        BufferedImage image = Lib.toBufferedImage(new ImageIcon(getClass().getResource(getSprite())).getImage());
+        image = ImageTransform.rotacionImagen(image, direccion);
+        if (isVisible()) {
+            grafico.drawImage(image, getX().intValue(), getY().intValue(), null);
         }
     }
 
     @Override
     public Nave putSprite(Graphics grafico) {
-        BufferedImage image = Lib.toBufferedImage(new ImageIcon(this.getClass().getResource(this.getSprite())).getImage());
-        Double direccionT = (double)this.direccion;
+        BufferedImage image = Lib.toBufferedImage(new ImageIcon(getClass().getResource(getSprite())).getImage());
+        Double direccionT = (double)direccion;
         image = ImageTransform.rotacionImagen(image, direccionT);
-        if (this.isVisible()) {
-            grafico.drawImage(image, this.getX().intValue(), this.getY().intValue(), null);
+        if (isVisible()) {
+            grafico.drawImage(image, getX().intValue(), getY().intValue(), null);
         }
         return this;
     }
@@ -135,7 +136,7 @@ extends Sprite {
     }
 
     public void setRestanteX(Double restanteX) {
-        this.restanteX = restanteX;
+        restanteX = restanteX;
     }
 
     public Double getRestanteY() {
@@ -143,7 +144,7 @@ extends Sprite {
     }
 
     public void setRestanteY(Double restanteY) {
-        this.restanteY = restanteY;
+        restanteY = restanteY;
     }
 
     public int getIterator() {
@@ -151,7 +152,7 @@ extends Sprite {
     }
 
     public void setIterator(int iterator) {
-        this.iterator = iterator;
+        iterator = iterator;
     }
 
     public int getVelocidad() {
@@ -159,7 +160,7 @@ extends Sprite {
     }
 
     public void setVelocidad(int velocidad) {
-        this.velocidad = velocidad;
+        velocidad = velocidad;
     }
 
     public Double getRelacionDistanciaXY() {
@@ -167,7 +168,7 @@ extends Sprite {
     }
 
     public void setRelacionDistanciaXY(Double relacionDistanciaXY) {
-        this.relacionDistanciaXY = relacionDistanciaXY;
+        relacionDistanciaXY = relacionDistanciaXY;
     }
 
     public Double getRelacionDistanciaYX() {
@@ -175,7 +176,7 @@ extends Sprite {
     }
 
     public void setRelacionDistanciaYX(Double relacionDistanciaYX) {
-        this.relacionDistanciaYX = relacionDistanciaYX;
+        relacionDistanciaYX = relacionDistanciaYX;
     }
     
     public double getDamageAmplifier() {
@@ -183,7 +184,7 @@ extends Sprite {
     }
 
     public void setDamageAmplifier(double damageAmplifier) {
-        this.damageAmplifier = damageAmplifier;
+        damageAmplifier = damageAmplifier;
     }
 }
 

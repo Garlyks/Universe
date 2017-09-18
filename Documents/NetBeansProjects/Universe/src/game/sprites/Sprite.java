@@ -4,6 +4,7 @@ import java.awt.Graphics;
 import javax.swing.ImageIcon;
 
 public class Sprite {
+    private long lastRefresh = System.currentTimeMillis();
     public Double x;
     public Double y;
     private boolean visible = true;
@@ -103,5 +104,21 @@ public class Sprite {
     public Sprite move() {
         return this;
     }
+
+    public long getLastRefresh() {
+        return lastRefresh;
+    }
+
+    public void setLastRefresh(long lastRefresh) {
+        this.lastRefresh = lastRefresh;
+    }
+
+    public boolean isMustBeDestroy() {
+        return mustBeDestroy;
+    }
+
+    public void setMustBeDestroy(boolean mustBeDestroy) {
+        this.mustBeDestroy = mustBeDestroy;
+    }    
 }
 
