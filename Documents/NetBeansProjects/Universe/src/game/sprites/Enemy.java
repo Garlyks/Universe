@@ -20,7 +20,7 @@ extends Nave {
     
 
     @Override
-    public void putSprite(Graphics grafico) {
+    public Enemy putSprite(Graphics grafico) {
         if (this.isVisible() && !this.isDestroing) {
             grafico.setColor(Color.green);
             Double porcentajeHp = this.hp * 100d / this.maxHp;
@@ -56,6 +56,7 @@ extends Nave {
             }
             super.putSprite(grafico);
         }
+        return this;
     }
 
     public void receiveDamage(Double damage) {

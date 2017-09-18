@@ -22,7 +22,7 @@ extends Sprite {
     }
 
     @Override
-    public void move() {
+    public Marca move() {
         ++this.iterator;
         if (this.iterator % 13 == 0) {
             this.setSprite("/Imagenes/Marca/marca2b.png");
@@ -34,6 +34,7 @@ extends Sprite {
             this.setVisible(false);
             this.iterator = 0;
         }
+        return this;
     }
 
     @Override

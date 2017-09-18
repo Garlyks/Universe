@@ -64,8 +64,8 @@ extends Sprite {
         }
     }
     
-    @Override
-    public void move() {
+ 
+    public Laser move() {
         if (this.alcance > 0.0) {
             this.setX(this.getX() + this.relacionDistanciaXY * (double)this.velocidad);
             this.alcance = this.alcance - Math.abs(this.relacionDistanciaXY * (double)this.velocidad);
@@ -74,6 +74,7 @@ extends Sprite {
         } else {
             this.destroy();
         }
+        return this;
     }
 
     public Double getDamage() {
@@ -98,13 +99,14 @@ extends Sprite {
     }
 
     @Override
-    public void putSprite(Graphics grafico) {
+    public Laser putSprite(Graphics grafico) {
         BufferedImage image = Lib.toBufferedImage(new ImageIcon(this.getClass().getResource(this.getSprite())).getImage());
         Double direccionT = (double)this.direccion;
         image = ImageTransform.rotacionImagen(image, direccionT);
         if (this.isVisible()) {
             grafico.drawImage(image, this.getX().intValue(), this.getY().intValue(), null);
         }
+        return this;
     }
 
     public void moveTo(Double x, Double y) {

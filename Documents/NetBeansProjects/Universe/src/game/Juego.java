@@ -6,7 +6,6 @@ import game.sprites.Enemy;
 import game.sprites.Marca;
 import java.awt.BorderLayout;
 import java.awt.Canvas;
-import java.awt.Component;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.event.MouseListener;
@@ -14,15 +13,16 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import util.Lib;
 
-public final class Juego
-extends Canvas {
+public final class Juego extends Canvas {
     private final ArrayList<Sprite> spritesStaticos = new ArrayList();
     private final ArrayList<Sprite> spritesDinamicos = new ArrayList();
     private final ArrayList<Enemy> enemies = new ArrayList();
@@ -35,73 +35,26 @@ extends Canvas {
     private Marca marca;
     BufferedImage pantalla;
     int refreshTime = 25;
-    long tiempo = System.currentTimeMillis();
+    private final int maxEnemyLasers = 30;
+    static long tiempo = System.currentTimeMillis();
+    
     JPanel controles;
     private int dificult = 0;
     private boolean clear = false;
-
+    
+    static final double COLLISION_DAMAGE = 2L;
+    
     public Juego(){
         //cheats
        // myShip.setMaxArmor(5000d);
         //myShip.setDamageAmplifier(25);
+        
         //configurar y setear cantidad enemigos
         configure();       
-        runGame();
+        threadGame.start();
+        threadDibuja.start();
     }    
     
-    public void dibuja(Graphics grafico) {
-        int i;
-        this.pantalla = new BufferedImage(this.getWidth(), this.getHeight(), 1);
-        int cantidadEstaticos = this.spritesStaticos.size();
-        this.spritesStaticos.get(0).setX(0.0);
-        this.spritesStaticos.get(0).setY(0.0);
-        for (int i2 = 0; i2 < cantidadEstaticos; ++i2) {
-            if (this.spritesStaticos.get(i2).mustBeDestroy()) {
-                this.spritesStaticos.remove(i2);
-                continue;
-            }
-            Double X = this.spritesStaticos.get(i2).getX();
-            Double Y = this.spritesStaticos.get(i2).getY();
-            this.spritesStaticos.get(i2).putSprite(this.pantalla.getGraphics(), X, Y);
-        }
-        int cantidadDinamicos = this.spritesDinamicos.size();
-        for (int i3 = 0; i3 < cantidadDinamicos; ++i3) {
-            if (this.spritesDinamicos.get(i3).mustBeDestroy()) {
-                this.spritesDinamicos.remove(i3);
-                break;
-            }
-            this.spritesDinamicos.get(i3).move();
-            this.spritesDinamicos.get(i3).putSprite(this.pantalla.getGraphics());
-        }
-        int cantidadProyectiles = this.proyectilesPropios.size();
-        for (i = 0; i < cantidadProyectiles; ++i) {
-            if (this.proyectilesPropios.get(i).mustBeDestroy()) {
-                this.proyectilesPropios.remove(i);
-                break;
-            }
-            this.proyectilesPropios.get(i).move();
-            this.proyectilesPropios.get(i).putSprite(this.pantalla.getGraphics());
-        }
-        cantidadProyectiles = this.proyectilesEnemigos.size();
-        for (i = 0; i < cantidadProyectiles; ++i) {
-            if (this.proyectilesEnemigos.get(i).mustBeDestroy()) {
-                this.proyectilesEnemigos.remove(i);
-                break;
-            }
-            this.proyectilesEnemigos.get(i).move();
-            this.proyectilesEnemigos.get(i).putSprite(this.pantalla.getGraphics());
-        }
-        int cantidadEnemys = this.enemies.size();
-        for (int i4 = 0; i4 < cantidadEnemys; ++i4) {
-            if (((Sprite)this.enemies.get(i4)).mustBeDestroy()) {
-                this.enemies.remove(i4);
-                break;
-            }
-            ((Sprite)this.enemies.get(i4)).move();
-            ((Sprite)this.enemies.get(i4)).putSprite(this.pantalla.getGraphics());
-        }
-        grafico.drawImage(this.pantalla, 0, 0, this);
-    }
     
     public void configure(){
         
@@ -135,8 +88,7 @@ extends Canvas {
         this.addMouseListener(new MouseEvent());        
         setClear();
     }
-    
-    
+        
     public void setClear(){       
         //set enemies
         enemies.clear();
@@ -145,63 +97,227 @@ extends Canvas {
         }
     }
     
-    public void runGame(){
-        
-        do {            
-            if (System.currentTimeMillis() - this.tiempo <= (long)this.refreshTime) {
+    public  void dibuja(Graphics grafico) {
+        int i;
+        this.pantalla = new BufferedImage(this.getWidth(), this.getHeight(), 1);
+        spritesStaticos.stream().forEach((Sprite spriteStatico)->{
+            spriteStatico.putSprite(this.pantalla.getGraphics());
+        });
+        /*int cantidadEstaticos = this.spritesStaticos.size();
+        this.spritesStaticos.get(0).setX(0.0);
+        this.spritesStaticos.get(0).setY(0.0);
+        for (int i2 = 0; i2 < cantidadEstaticos; ++i2) {
+            if (this.spritesStaticos.get(i2).mustBeDestroy()) {
+                this.spritesStaticos.remove(i2);
                 continue;
             }
+            Double X = this.spritesStaticos.get(i2).getX();
+            Double Y = this.spritesStaticos.get(i2).getY();
+            this.spritesStaticos.get(i2).putSprite(this.pantalla.getGraphics(), X, Y);
+        }*/
+        
+        spritesDinamicos.stream().forEach((Sprite spritesDinamico)->{
+            spritesDinamico.putSprite(this.pantalla.getGraphics());
+        });
+        
+        proyectilesPropios.stream().forEach((Sprite proyectilPropio)->{
+            proyectilPropio.putSprite(this.pantalla.getGraphics());
+        });
+        
+        
+        //cantidadProyectiles = this.proyectilesEnemigos.size();
+        //proyectilesEnemigos.stream().filter((proyectil)->(!proyectil.mustBeDestroy())).collect(Collectors.toList()); 
+        
+        //proyectilesEnemigosPantalla = Collections.synchronizedCollection(proyectilesEnemigos);
+        proyectilesEnemigos.stream().forEach(proyectil->{
+            ((Sprite)proyectil).putSprite(this.pantalla.getGraphics());
+        });
+       /* for (i = 0; i < cantidadProyectiles; ++i) {
+            if (this.proyectilesEnemigos.get(i).mustBeDestroy()) {
+                this.proyectilesEnemigos.remove(i);
+                break;
+            }
+            this.proyectilesEnemigos.get(i).move();
+            this.proyectilesEnemigos.get(i).putSprite(this.pantalla.getGraphics());
+        }*/
+        //enemiesPantalla=Collections.synchronizedCollection(enemies);
+        enemies.stream().forEach(proyectil->{
+            ((Sprite)proyectil).putSprite(this.pantalla.getGraphics());
+        });
+       /*
+        int cantidadEnemys = this.enemies.size();
+        for (int i4 = 0; i4 < cantidadEnemys; ++i4) {
+            if (((Sprite)this.enemies.get(i4)).mustBeDestroy()) {
+                this.enemies.remove(i4);
+                break;
+            }
+            ((Sprite)this.enemies.get(i4)).move();
+            ((Sprite)this.enemies.get(i4)).putSprite(this.pantalla.getGraphics());
+        }*/
+        grafico.drawImage(this.pantalla, 0, 0, this);
+    }
+    
+    
+    public void runGame(){
+        
+        
             if (this.marca.isVisible() && this.marca.intecerpta(this.myShip)) {
                 this.marca.setVisible(false);
             }
+            
+            proyectilesPropios.removeIf(proyectilPropio->(proyectilPropio.mustBeDestroy()));
+            proyectilesPropios.stream().forEach(proyectilPropio->{
+                proyectilPropio.move();
+                enemies.stream().forEach(enemy->{
+                    if(enemy.intecerpta(proyectilPropio)){
+                        enemy.receiveDamage(((Laser)proyectilPropio).hit());
+                    }
+                });
+            });
+            
+            /*
             int maxProyectiles = this.proyectilesPropios.size();
             int maxEnemies = this.enemies.size();
+            
             for (int i = 0; i < maxProyectiles; ++i) {
                 for (int j = 0; j < maxEnemies; ++j) {
                     if (!this.enemies.get(j).intecerpta(this.proyectilesPropios.get(i))) continue;
                     this.enemies.get(j).receiveDamage(((Laser)this.proyectilesPropios.get(i)).hit());
                 }
-            }
-            if (maxEnemies == 0) {
+            }*/
+            if (enemies.size() == 0) {
                 dificult++;
                 clear = true;
                 setClear();
             }
-            maxProyectiles = this.proyectilesEnemigos.size();
-            for (int i = 0; i < maxProyectiles; ++i) {
+            spritesDinamicos.removeIf(spriteDinamico->(spriteDinamico.mustBeDestroy()));
+            spritesDinamicos.stream().forEach(spriteDinamico->{
+                spriteDinamico.move();                
+            });
+            
+            /*int cantidadDinamicos = this.spritesDinamicos.size();
+            for (int i3 = 0; i3 < cantidadDinamicos; ++i3) {
+                if (this.spritesDinamicos.get(i3).mustBeDestroy()) {
+                    this.spritesDinamicos.remove(i3);
+                    break;
+                }
+                this.spritesDinamicos.get(i3).move();
+                this.spritesDinamicos.get(i3).putSprite(this.pantalla.getGraphics());
+            }*/
+            
+            proyectilesEnemigos.removeIf(proyectil->(proyectil.mustBeDestroy()));
+            proyectilesEnemigos.stream().forEach(proyectilEnemigo->{
+                proyectilEnemigo.move();
+                if (this.myShip.intecerpta(proyectilEnemigo))
+                this.myShip.receiveDamage(((Laser)proyectilEnemigo).hit());
+            });
+            
+            /*maxProyectiles = this.proyectilesEnemigos.size();
+            for (int i = 0; i < maxProyectiles; i++) {
                 if (!this.myShip.intecerpta(this.proyectilesEnemigos.get(i))) continue;
                 this.myShip.receiveDamage(((Laser)this.proyectilesEnemigos.get(i)).hit());
-            }
-            maxEnemies = this.enemies.size();
-            for (int i = 0; i < maxEnemies; ++i) {
+            }*/
+            enemies.removeIf(enemy->(enemy.mustBeDestroy()));
+            enemies.stream().forEach(enemy->{
+                enemy.move();
+            });
+            
+            //maxEnemies = this.enemies.size();
+            
+            enemies.stream().forEach(enemy->{
+                if(myShip.intecerpta(enemy)){
+                    this.myShip.receiveDamage(COLLISION_DAMAGE);
+                    enemy.receiveDamage(COLLISION_DAMAGE);
+                }
+                if ((tiempo % 103 == 0 || enemy.getRestanteX() == 0.0 && enemy.getRestanteY() == 0.0) && !enemy.isDestroing()){
+                    enemy.moveTo(Lib.getRandomWidth(this), Lib.getRandomHeight(this));
+                    if(proyectilesEnemigos.size()<maxEnemyLasers){                        
+                        proyectilesEnemigos.add(new Laser(enemy,myShip));
+                    }
+                } 
+                if (!(tiempo % (Math.random() * 80.0 + 1) != 0 || enemy.isDestroing())){
+                    this.proyectilesEnemigos.add(new Laser(enemy,myShip));
+                }            
+                
+            });
+            
+            /*for (int i = 0; i < maxEnemies; ++i) {
                 if (this.myShip.intecerpta(this.enemies.get(i)) && !this.myShip.mustBeDestroy()) {
                     this.myShip.receiveDamage(1.0);
                     this.enemies.get(i).receiveDamage(1.0);
                 }
-                if ((this.tiempo % 103 == 0 || this.enemies.get((int)i).getRestanteX() == 0.0 && this.enemies.get((int)i).getRestanteY() == 0.0) && !this.enemies.get((int)i).isDestroing()) {
+                if ((tiempo % 103 == 0 || this.enemies.get((int)i).getRestanteX() == 0.0 && this.enemies.get((int)i).getRestanteY() == 0.0) && !this.enemies.get((int)i).isDestroing()) {
                     this.enemies.get(i).moveTo(Lib.getRandomWidth(this), Lib.getRandomHeight(this));                    
-                    this.proyectilesEnemigos.add(new Laser(enemies.get(i),myShip));
+                    if(proyectilesEnemigos.size()<maxEnemyLasers){
+                        this.proyectilesEnemigos.add(new Laser(enemies.get(i),myShip));
+                    }
                 }
                 if (this.tiempo % (long)((int)(Math.random() * 80.0) + 1) != 0 || this.enemies.get((int)i).isDestroing()) continue;                
                 this.proyectilesEnemigos.add(new Laser(enemies.get(i),myShip));
-            }
-            if (!this.myShip.mustBeDestroy()) {
-                this.dibuja(this.getGraphics());
-            } else {
-                JOptionPane.showMessageDialog(this.ventana, "You Lose", "Alerta", 1);
-                System.exit(0);
+            }*/
+            //if (!this.myShip.mustBeDestroy()) {
+            //    this.dibuja(this.getGraphics());
+            //} else {
+             //   JOptionPane.showMessageDialog(this.ventana, "You Lose", "Alerta", 1);
+             //   System.exit(0);
                
-            }
-            this.tiempo = System.currentTimeMillis();
-        } while (!clear);
-        clear = false;
-        runGame();
+            //}
+            
+        
     }
+    
+    
+    Thread threadGame = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            do {
+                if (System.currentTimeMillis() - Juego.this.tiempo >= Juego.this.refreshTime) {
+                    runGame(); 
+                    Juego.tiempo = System.currentTimeMillis();
+                    /*try {
+                        threadGame.sleep(100);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Juego.class.getName()).log(Level.SEVERE, null, ex);
+                    }*/
+                }else{                    
+                   
+                }                
+            //} while (!clear);
+            } while (true);
+           // clear = false;
+            //runGame();
+        }
+    });
+    
+    Thread threadDibuja = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            do {
+                if (System.currentTimeMillis() - Juego.tiempo >= (long) Juego.this.refreshTime) {
+                    dibuja(Juego.this.getGraphics());
+                    Juego.tiempo = System.currentTimeMillis();
+
+                    /*try {
+                        threadDibuja.sleep(25);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Juego.class.getName()).log(Level.SEVERE, null, ex);
+                    }*/
+                    
+                } else {
+                    //Logger.getLogger(Juego.class.getName()).log(Level.INFO, "Dibuja at "+System.currentTimeMillis() );
+                    
+                }
+            } while (true);
+            //JOptionPane.showMessageDialog(this.ventana, "You Lose", "Alerta", 1);
+        }
+    });
     
     public static void main(String[] arg) {
         Juego game = new Juego();
     }
-
+    
+    
+    
     private class MouseEvent
     implements MouseListener {
         private MouseEvent() {

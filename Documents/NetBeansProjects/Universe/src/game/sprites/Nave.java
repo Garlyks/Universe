@@ -27,8 +27,9 @@ extends Sprite {
         this.setY(200d);
     }
 
+
     @Override
-    public void move() {
+    public Nave move() {
         Double Xfinal = this.getX() + this.restanteX;
         Double Yfinal = this.getY() + this.restanteY;
         if (Math.abs(this.restanteX) + Math.abs(this.restanteY) > 20d) {
@@ -70,6 +71,7 @@ extends Sprite {
                 this.iterator = 0;
             }
         }
+        return this;
     }
 
     public Double getDireccion() {
@@ -118,13 +120,14 @@ extends Sprite {
     }
 
     @Override
-    public void putSprite(Graphics grafico) {
+    public Nave putSprite(Graphics grafico) {
         BufferedImage image = Lib.toBufferedImage(new ImageIcon(this.getClass().getResource(this.getSprite())).getImage());
         Double direccionT = (double)this.direccion;
         image = ImageTransform.rotacionImagen(image, direccionT);
         if (this.isVisible()) {
             grafico.drawImage(image, this.getX().intValue(), this.getY().intValue(), null);
         }
+        return this;
     }
 
     public Double getRestanteX() {

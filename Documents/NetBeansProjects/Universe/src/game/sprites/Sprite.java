@@ -73,10 +73,11 @@ public class Sprite {
         }
     }
 
-    public void putSprite(Graphics grafico) {
+    public Sprite putSprite(Graphics grafico) {
         if (this.visible) {
             grafico.drawImage(new ImageIcon(this.getClass().getResource(this.sprite)).getImage(), this.x.intValue(), this.y.intValue(), null);
         }
+        return this;
     }
 
     public boolean isIn(Double x, Double y) {
@@ -99,7 +100,8 @@ public class Sprite {
         return intercepta;
     }
 
-    public void move() {
+    public Sprite move() {
+        return this;
     }
 }
 
