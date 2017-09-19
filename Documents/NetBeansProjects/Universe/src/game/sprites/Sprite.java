@@ -1,98 +1,99 @@
 package game.sprites;
 
 import java.awt.Graphics;
+import java.util.Objects;
 import javax.swing.ImageIcon;
 
 public class Sprite {
-    private long lastRefresh = System.currentTimeMillis();
+    private Long lastRefresh = System.currentTimeMillis();
     public Double x;
     public Double y;
-    private boolean visible = true;
+    private Boolean visible = true;
     public String sprite;
     private boolean mustBeDestroy = false;
 
     public Sprite() {
-        this.x = this.y = 0d;
+        x = y = 0d;
     }
 
     public boolean isVisible() {
-        return this.visible;
+        return visible;
     }
 
     public Sprite setVisible(boolean estado) {
-        this.visible = estado;
+        visible = estado;
         return this;
     }
 
     public Double getX() {
-        return this.x;
+        return x;
     }
 
     public Sprite setX(Double valor) {
-        this.x = valor;
+        x = valor;
         return this;
     }
 
     public void destroy() {
-        this.mustBeDestroy = true;
+        mustBeDestroy = true;
     }
 
     public boolean mustBeDestroy() {
-        return this.mustBeDestroy;
+        return mustBeDestroy;
     }
 
     public Double getY() {
-        return this.y;
+        return y;
     }
 
     public Sprite setY(Double valor) {
-        this.y = valor;
+        y = valor;
         return this;
     }
 
     public int getWidth() {
-        return new ImageIcon(this.getClass().getResource(this.sprite)).getImage().getWidth(null);
+        return new ImageIcon(getClass().getResource(sprite)).getImage().getWidth(null);
     }
 
     public int getHeight() {
-        return new ImageIcon(this.getClass().getResource(this.sprite)).getImage().getHeight(null);
+        return new ImageIcon(getClass().getResource(sprite)).getImage().getHeight(null);
     }
     public Sprite setSprite(String url) {
-        this.sprite = url;
+        sprite = url;
         return this;
     }
 
     public String getSprite() {
-        return this.sprite;
+        return sprite;
     }
 
     public void putSprite(Graphics grafico, Double coordenadaHorizontal, Double coordenadaVertical) {
-        this.x = coordenadaHorizontal;
-        this.y = coordenadaVertical;
-        if (this.visible) {
-            grafico.drawImage(new ImageIcon(this.getClass().getResource(this.sprite)).getImage(), this.x.intValue(), this.y.intValue(), null);
+        x = coordenadaHorizontal;
+        y = coordenadaVertical;
+        if (visible) {
+            grafico.drawImage(new ImageIcon(getClass().getResource(sprite)).getImage(), x.intValue(), y.intValue(), null);
         }
     }
 
     public Sprite putSprite(Graphics grafico) {
-        if (this.visible) {
-            grafico.drawImage(new ImageIcon(this.getClass().getResource(this.sprite)).getImage(), this.x.intValue(), this.y.intValue(), null);
+        if (visible) {
+            grafico.drawImage(new ImageIcon(getClass().getResource(sprite)).getImage(), x.intValue(), y.intValue(), null);
         }
         return this;
     }
 
     public boolean isIn(Double x, Double y) {
-        return x >= this.x && x <= this.x + (double)this.getWidth() && y >= this.y && y <= this.y + (double)this.getHeight();
+        return x >= x && x <= x + getWidth() && y >= y && y <= y + getHeight();
     }
 
     public boolean intecerpta(Sprite sprite1) {
         boolean intercepta = false;
         boolean interceptaX = false;
         boolean interceptaY = false;
-        if (sprite1.getX() <= this.getX() && sprite1.getX() + (double)sprite1.getWidth() >= this.getX() || this.getX() <= sprite1.getX() && this.getX() + (double)this.getWidth() >= sprite1.getX()) {
+        if (sprite1.getX() <= getX() && sprite1.getX() + sprite1.getWidth() >= getX() || getX() <= sprite1.getX() && getX() + getWidth() >= sprite1.getX()) {
             interceptaX = true;
         }
-        if (sprite1.getY() <= this.getY() && sprite1.getY() + (double)sprite1.getHeight() >= this.getY() || this.getY() <= sprite1.getY() && this.getY() + (double)this.getHeight() >= sprite1.getY()) {
+        if (sprite1.getY() <= getY() && sprite1.getY() + sprite1.getHeight() >= getY() || getY() <= sprite1.getY() && getY() + getHeight() >= sprite1.getY()) {
             interceptaY = true;
         }
         if (interceptaY && interceptaX) {
@@ -119,6 +120,66 @@ public class Sprite {
 
     public void setMustBeDestroy(boolean mustBeDestroy) {
         this.mustBeDestroy = mustBeDestroy;
-    }    
+    } 
+    
+    @Override
+    public int hashCode() {
+        
+        /*
+        private long lastRefresh = System.currentTimeMillis();
+        public Double x;
+        public Double y;
+        private boolean visible = true;
+        public String sprite;
+        private boolean mustBeDestroy = false;
+        */
+        
+        int hash = 7;
+        hash = 13 * hash + lastRefresh.hashCode();
+        hash = 13 * hash + (this.x != null ? this.x.hashCode() : 0);
+        hash = 13 * hash + (this.y != null ? this.y.hashCode() : 0);
+        hash = 13 * hash + (this.visible != null ? this.visible.hashCode() : 0);
+        hash = 13 * hash + (this.y != null ? this.y.hashCode() : 0);
+        hash = 13 * hash + (this.y != null ? this.y.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public String toString() {
+        return "Sprite{" + "lastRefresh=" + lastRefresh + ", x=" + x + ", y=" + y + ", visible=" + visible + ", sprite=" + sprite + ", mustBeDestroy=" + mustBeDestroy + '}';
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Sprite other = (Sprite) obj;
+        if (this.mustBeDestroy != other.mustBeDestroy) {
+            return false;
+        }
+        if (!Objects.equals(this.sprite, other.sprite)) {
+            return false;
+        }
+        if (!Objects.equals(this.lastRefresh, other.lastRefresh)) {
+            return false;
+        }
+        if (!Objects.equals(this.x, other.x)) {
+            return false;
+        }
+        if (!Objects.equals(this.y, other.y)) {
+            return false;
+        }
+        if (!Objects.equals(this.visible, other.visible)) {
+            return false;
+        }
+        return true;
+    }
 }
 

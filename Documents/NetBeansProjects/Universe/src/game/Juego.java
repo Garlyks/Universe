@@ -4,6 +4,7 @@ import game.sprites.Laser;
 import game.sprites.Sprite;
 import game.sprites.Enemy;
 import game.sprites.Marca;
+import game.sprites.Wormhole;
 import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Frame;
@@ -12,7 +13,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
@@ -24,11 +25,12 @@ public final class Juego extends Canvas {
     private static int fps = 0;
     private static int fpsActual = 0;
     private static long fpsTime = 0;
-    private final ArrayList<Sprite> spritesStaticos = new ArrayList();
-    private final ArrayList<Sprite> spritesDinamicos = new ArrayList();
-    private final ArrayList<Enemy> enemies = new ArrayList();
-    private final ArrayList<Sprite> proyectilesPropios = new ArrayList();
-    private final ArrayList<Sprite> proyectilesEnemigos = new ArrayList();
+    private final CopyOnWriteArrayList<Sprite> spritesStaticos = new CopyOnWriteArrayList();
+    private final CopyOnWriteArrayList<Sprite> spritesDinamicos = new CopyOnWriteArrayList();
+    private final CopyOnWriteArrayList<Enemy> enemies = new CopyOnWriteArrayList();
+    private final CopyOnWriteArrayList<Sprite> proyectilesPropios = new CopyOnWriteArrayList();
+    //private final ArrayList<Sprite> proyectilesPropios = new ArrayList();
+    private final CopyOnWriteArrayList<Sprite> proyectilesEnemigos = new CopyOnWriteArrayList();
     private Frame ventana;
     private final Sprite planeta = new Sprite();
     private final Sprite fondo = new Sprite();
@@ -51,7 +53,8 @@ public final class Juego extends Canvas {
         //myShip.setDamageAmplifier(25);
         
         //configurar y setear cantidad enemigos
-        configure();       
+        configure();   
+        whInit();
         threadGame.start();
         threadDibuja.start();
     }    
@@ -81,16 +84,17 @@ public final class Juego extends Canvas {
         fondo.setSprite("/Imagenes/space.jpg");
         planeta.setX(80.0);
         planeta.setY(80.0);
+        spritesDinamicos.add(myShip);
         spritesStaticos.add(fondo);
         spritesStaticos.add(planeta);
         spritesDinamicos.add(marca);
-        spritesDinamicos.add(myShip);
+        
         
         addMouseListener(new MouseEvent());        
         setClear();
     }
         
-    public void setClear(){       
+    public void setClear(){
         //set enemies
         enemies.clear();
         for (int i = 0; i<dificult; i++){
@@ -99,54 +103,58 @@ public final class Juego extends Canvas {
     }
     
     public void dibuja(Graphics grafico) { 
-        ArrayList<Sprite> spritesStaticosT = new ArrayList<>(spritesStaticos);
-        ArrayList<Sprite> spritesDinamicosT = new ArrayList<>(spritesDinamicos);
-        ArrayList<Enemy> enemiesT = new ArrayList<>(enemies);
-        ArrayList<Sprite> proyectilesPropiosT = new ArrayList<>(proyectilesPropios);
-        ArrayList<Sprite> proyectilesEnemigosT = new ArrayList<>(proyectilesEnemigos);
         try{
             pantalla = new BufferedImage(getWidth(), getHeight(), 1);
-            spritesStaticosT.stream().forEach((Sprite spriteStatico)->{
-                spriteStatico.putSprite(pantalla.getGraphics());
+            spritesStaticos.stream().forEach((Sprite spriteStatico)->{
+                if(spriteStatico!= null)spriteStatico.putSprite(pantalla.getGraphics());
             });
 
-            spritesDinamicosT.stream().forEach((Sprite spritesDinamico)->{
-                spritesDinamico.putSprite(pantalla.getGraphics());
+            spritesDinamicos.stream().forEach((Sprite spritesDinamico)->{
+                if(spritesDinamico!= null)spritesDinamico.putSprite(pantalla.getGraphics());
             });
 
-            proyectilesPropiosT.stream().forEach((Sprite proyectilPropio)->{
-                proyectilPropio.putSprite(pantalla.getGraphics());
+            proyectilesPropios.stream().forEach((Sprite proyectilPropio)->{
+                if(proyectilPropio!= null) proyectilPropio.putSprite(pantalla.getGraphics());
             });
 
-            proyectilesEnemigosT.stream().forEach(proyectil->{
+            proyectilesEnemigos.stream().forEach(proyectil->{
+                if(proyectil!= null)(proyectil).putSprite(pantalla.getGraphics());
+            });
+
+            enemies.stream().forEach(proyectil->{
                 ((Sprite)proyectil).putSprite(pantalla.getGraphics());
             });
-
-            enemiesT.stream().forEach(proyectil->{
-                ((Sprite)proyectil).putSprite(pantalla.getGraphics());
-            });
-
-            //FPS MANAGEMENT
-            fps++;
-            if(System.currentTimeMillis()-fpsTime>1000){
-                fpsTime=System.currentTimeMillis();
-                fpsActual = fps;
-                fps=0;
-
-            }
-            pantalla.getGraphics().drawString(fpsActual+" fps", 25, 25);
-            //END FPS MANAGEMENT
-
-            grafico.drawImage(pantalla, 0, 0, this);
+            
         }catch(Exception e){
-            Logger.getLogger(Juego.class.getName()).log(Level.SEVERE,"Test time "+ (System.currentTimeMillis() - tiempo),e);
+            //Logger.getLogger(Juego.class.getName()).log(Level.SEVERE,"Test time "+ (System.currentTimeMillis() - tiempo),e);
             dibuja(grafico);
         }
+        //FPS MANAGEMENT
+        fps++;
+        if(System.currentTimeMillis()-fpsTime>1000){
+            fpsTime=System.currentTimeMillis();
+            fpsActual = fps;
+            fps=0;
+
+        }
+        //END FPS MANAGEMENT
+        pantalla.getGraphics().drawString(fpsActual+" fps", 25, 25);
+        
+
+        grafico.drawImage(pantalla, 0, 0, this);
     }    
     
     public void runGame(){
             //synchronized(this){
             proyectilesPropios.removeIf(proyectilPropio->(proyectilPropio.mustBeDestroy()));
+            
+           /* Iterator<Sprite> iter = proyectilesPropios.iterator();
+            while (iter.hasNext()) {
+                Sprite proyectilPropio = iter.next();
+                if (proyectilPropio.mustBeDestroy())
+                    iter.remove();
+            }*/
+            
             spritesDinamicos.removeIf(spriteDinamico->(spriteDinamico.mustBeDestroy()));
             proyectilesEnemigos.removeIf(proyectil->(proyectil.mustBeDestroy()));
             enemies.removeIf(enemy->(enemy.mustBeDestroy()));
@@ -204,21 +212,55 @@ public final class Juego extends Canvas {
                 }  
             });            
     }
-
+    
+    public void whInit(){
+        Wormhole wh = new Wormhole();
+        wh.setExit(new Wormhole());
+        wh.setX(Lib.getRandomHeight(this)).setY(Lib.getRandomWidth(this));
+        wh.getExit().setX(Lib.getRandomWidth(this)).setY(Lib.getRandomHeight(this));
+        spritesDinamicos.add(wh);
+        while(wh.getX()+wh.getY()-wh.getExit().getX()+wh.getExit().getY()<500){
+            wh.getExit().setX(Lib.getRandomWidth(this)).setY(Lib.getRandomHeight(this));
+        }
+    }
+    
     public void whControl(){
-        
+        spritesDinamicos.stream().filter(wh->wh.getClass().equals(Wormhole.class)).findFirst().ifPresent(wh->{
+            Wormhole whActual = (Wormhole) wh;
+            
+            (whActual).setRotacion((whActual).getRotacion()+1);
+            spritesDinamicos.forEach(sprite->{
+                if(whActual.intecerpta(sprite) && !sprite.equals(whActual) && System.currentTimeMillis()-whActual.getLastUsage()>2000){
+                    whActual.setLastUsage(System.currentTimeMillis());
+                    sprite.setX(whActual.getExit().getX())
+                          .setY(whActual.getExit().getY());   
+                    marca.setVisible(false);
+                    
+                }
+                if(whActual.getExit().intecerpta(sprite) && !sprite.equals(whActual) && System.currentTimeMillis()-whActual.getLastUsage()>2000){
+                    sprite.setX(whActual.getX())
+                          .setY(whActual.getY()); 
+                    whActual.setLastUsage(System.currentTimeMillis());
+                    marca.setVisible(false);
+                }
+            });
+            
+                
+            
+        });
     }
     
     Thread threadGame = new Thread(new Runnable() {
         @Override
         public void run() {
-            long gameTime = System.currentTimeMillis();
+            
             do {
                 if (System.currentTimeMillis() - tiempo >= refreshTime) {
                     
                     //Logger.getLogger(Juego.class.getName()).log(Level.INFO,"Test time "+ (System.currentTimeMillis() - tiempo));
                     tiempo = System.currentTimeMillis();
-                    runGame(); 
+                    runGame();
+                    if(tiempo%2==0) whControl();
                     //tiempo = System.currentTimeMillis();
                     /*try {
                         threadGame.sleep(100);
@@ -228,7 +270,7 @@ public final class Juego extends Canvas {
                     
                 }else{  
                     try {
-                        threadGame.sleep(refreshTime- (System.currentTimeMillis() - tiempo));
+                        threadGame.sleep(Math.abs(refreshTime- (System.currentTimeMillis() - tiempo)));
                     } catch (InterruptedException ex) {
                         Logger.getLogger(Juego.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -263,6 +305,16 @@ public final class Juego extends Canvas {
                 //}
             } while (true);
             //JOptionPane.showMessageDialog(ventana, "You Lose", "Alerta", 1);
+        }
+    });
+    
+    Thread threadWormholes = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            do {
+                if (System.currentTimeMillis() - tiempo >= refreshTime*2) 
+                    whControl();
+            } while (true);
         }
     });
     

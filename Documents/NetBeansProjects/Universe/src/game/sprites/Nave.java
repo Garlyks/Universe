@@ -122,9 +122,8 @@ extends Sprite {
 
     @Override
     public Nave putSprite(Graphics grafico) {
-        BufferedImage image = Lib.toBufferedImage(new ImageIcon(getClass().getResource(getSprite())).getImage());
-        Double direccionT = (double)direccion;
-        image = ImageTransform.rotacionImagen(image, direccionT);
+        BufferedImage image = Lib.toBufferedImage(new ImageIcon(getClass().getResource(getSprite())).getImage());       
+        image = ImageTransform.rotacionImagen(image, direccion);
         if (isVisible()) {
             grafico.drawImage(image, getX().intValue(), getY().intValue(), null);
         }
