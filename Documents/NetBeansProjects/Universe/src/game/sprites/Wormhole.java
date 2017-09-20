@@ -24,7 +24,7 @@ public class Wormhole extends Sprite{
     
     public Wormhole(){
         super();        
-        setSprite("/Imagenes/wormhole/wormhole.png");
+        super.setSprite("/Imagenes/wormhole/wormhole.png");
         
     }
     
@@ -66,7 +66,8 @@ public class Wormhole extends Sprite{
         }
     }
     @Override
-    public Wormhole putSprite(Graphics grafico) {        
+    public Wormhole putSprite(Graphics grafico) { 
+       // System.out.println("Wormhole at X: "+getX().intValue()+" Y: "+ getY().intValue());
         BufferedImage image = Lib.toBufferedImage(new ImageIcon(getClass().getResource(getSprite())).getImage());
         if(rotacion++>=360)rotacion = 0;        
         image = ImageTransform.rotacionImagen(image,rotacion);

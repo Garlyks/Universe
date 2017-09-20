@@ -10,13 +10,16 @@ extends Nave {
     double maxArmor = 120d;
     double armor = 120d;
     double maxShield = 120d;
-    double shield_resistance = 15d;
-    double shield_regeneration = 0.5;
+    double shieldResistance = 15d;
+    double shieldRegeneration = 0.5;
     double shield = 120d;
     boolean isDestroing = false;
-    boolean isShielding = false;
+    double shieldUntil = 0;
     int shieldPhase = 0;
     int destroyPhase = 0;
+    private long lastShotTime;
+    double minShotInterval=500;
+
     
 
     @Override
@@ -40,19 +43,14 @@ extends Nave {
             } else {
                 this.destroy();
             }
-        } else if (this.isShielding) {
-            if (++this.shieldPhase < 10) {
-                String temp = this.getSprite();
-                this.setSprite(temp.replace(".", "_shielding."));
-                super.putSprite(grafico);
-                this.setSprite(temp);
-            } else {
-                this.isShielding = false;
-                this.shieldPhase = 0;
-            }
+        } else if (this.shieldUntil-System.currentTimeMillis()>0) {   
+            String temp = this.getSprite();
+            this.setSprite(temp.replace(".", "_shielding."));
+            super.putSprite(grafico);
+            this.setSprite(temp);          
         } else {
             if (this.shield < this.maxShield) {
-                this.shield = this.shield * 100d / this.maxShield > 10d ? this.shield + this.shield_regeneration * (this.shield * 100d / this.maxShield) / 100d : this.shield + 0.1;
+                shield += (System.currentTimeMillis()-getRefreshTime())*(shieldRegeneration/1000);               
             }
             super.putSprite(grafico);
         }
@@ -62,9 +60,9 @@ extends Nave {
     public void receiveDamage(Double damage) {
         if (this.shield > 0d && damage > 0d) {
             double damage_absorbed = 0d;
-            if (damage > this.shield_resistance) {
-                damage_absorbed = this.shield_resistance;
-                damage = damage - this.shield_resistance;
+            if (damage > this.shieldResistance) {
+                damage_absorbed = this.shieldResistance;
+                damage = damage - this.shieldResistance;
             } else {
                 damage_absorbed = damage;
                 damage = 0d;
@@ -74,7 +72,7 @@ extends Nave {
                 damage = - this.shield;
                 this.shield = -4d;
             }
-            this.isShielding = true;
+            this.shieldUntil = System.currentTimeMillis()+200;
         }
         if (this.armor > 0d && damage > 0d) {
             if (this.armor > damage) {
@@ -100,20 +98,20 @@ extends Nave {
         }
     }
 
-    public Double getMax_hp() {
+    public Double getMaxHp() {
         return maxHp;
     }
 
-    public Enemy setMax_hp(Double maxHp) {
+    public Enemy setMaxHp(Double maxHp) {
         this.maxHp = maxHp;
         return this;
     }
 
-    public Double getMax_armor() {
+    public Double getMaxArmor() {
         return maxArmor;
     }
 
-    public Enemy setMax_armor(Double maxArmor) {
+    public Enemy setMaxArmor(Double maxArmor) {
         this.maxArmor = maxArmor;
         return this;
     }
@@ -127,30 +125,30 @@ extends Nave {
         return this;
     }
 
-    public Double getMax_shield() {
+    public Double getMaxShield() {
         return maxShield;
     }
 
-    public Enemy setMax_shield(Double maxShield) {
+    public Enemy setMaxShield(Double maxShield) {
         this.maxShield = maxShield;
         return this;
     }
 
-    public Double getShield_resistance() {
-        return shield_resistance;
+    public Double getShieldResistance() {
+        return shieldResistance;
     }
 
-    public Enemy setShield_resistance(Double shield_resistance) {
-        this.shield_resistance = shield_resistance;
+    public Enemy setShieldResistance(Double shieldResistance) {
+        this.shieldResistance = shieldResistance;
         return this;
     }
 
-    public Double getShield_regeneration() {
-        return shield_regeneration;
+    public Double getShieldRegeneration() {
+        return shieldRegeneration;
     }
 
-    public Enemy setShield_regeneration(Double shield_regeneration) {
-        this.shield_regeneration = shield_regeneration;
+    public Enemy setShieldRegeneration(Double shieldRegeneration) {
+        this.shieldRegeneration = shieldRegeneration;
         return this;
     }
 
@@ -159,7 +157,10 @@ extends Nave {
     }
 
     public Enemy setShield(Double shield) {
-        this.shield = shield;
+        if(shield<getMaxShield())  
+            this.shield = shield;
+        else
+            this.shield = getMaxShield();
         return this;
     }
 
@@ -172,12 +173,12 @@ extends Nave {
         return this;
     }
 
-    public boolean isIsShielding() {
-        return isShielding;
+    public double isIsShielding() {
+        return shieldUntil;
     }
 
-    public Enemy setIsShielding(boolean isShielding) {
-        this.isShielding = isShielding;
+    public Enemy setIsShielding(double shieldUntil) {
+        this.shieldUntil = shieldUntil;
         return this;
     }
 
@@ -198,17 +199,22 @@ extends Nave {
         this.destroyPhase = destroyPhase;
         return this;
     }
-
-    public void setMaxArmor(Double maxArmor) {
-        armor = maxArmor;
-        this.maxArmor = maxArmor;
+   
+    public long getLastShotTime() {
+        return lastShotTime;
     }
 
-    public void setMaxShield(Double maxShield) {
-        shield = maxShield;
-        this.maxShield = maxShield;
+    public void setLastShotTime(long lastShotTime) {
+        this.lastShotTime = lastShotTime;
+    }
+    
+    public double getMinShotInterval() {
+        return minShotInterval;
     }
 
+    public void setMinShotInterval(double minShotInterval) {
+        this.minShotInterval = minShotInterval;
+    }
     
     
     

@@ -22,8 +22,8 @@ public class Lib {
         Double factor;
         Double relacion;
         int cuadrante;
-        Double factorX = Xinicial - Xfinal;
-        Double factorY = Yinicial - Yfinal;
+        Double factorX = Xfinal- Xinicial;
+        Double factorY = Yfinal- Yinicial ;
         Double anguloRadianes = Math.atan(factorY / factorX);
         grados = Math.toDegrees(anguloRadianes);
         if (Math.abs(factorX / factorY) < 1d){

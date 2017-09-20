@@ -10,56 +10,85 @@ import util.Lib;
 public class Nave
 extends Sprite {
     int iterator = 0;
-    int velocidad = 5;
+    int velocidad = 250;
     
     double direccion = 0;
-    double restanteX = 0;
-    double restanteY = 0;
+    double impulsoX = 0;
+    double impulsoY = 0;
     double hp = 120;
     
     double relacionDistanciaXY = 1d;
     double relacionDistanciaYX = 1d;
-    double damageAmplifier = 1;
+    double damageAmplifier = 1;   
+    
+    long timeAlive;
     
     public Nave() {
         //super(this);
-        setSprite("/Imagenes/Nave/nave.png");
-        setX(200d);
-        setY(200d);
+        super.setSprite("/Imagenes/Nave/nave.png");
+        super.setX(200d);
+        super.setY(200d);
+        
     }
 
 
     @Override
     public Nave move() {
-        Double Xfinal = getX() + restanteX;
-        Double Yfinal = getY() + restanteY;
-        if (Math.abs(restanteX) + Math.abs(restanteY) > 20) {
+        //System.out.println(impulsoX);
+   
+        if(impulsoX>0 || impulsoY>0){
+            double distanciaARecorrer = (System.currentTimeMillis()-getRefreshTime())*(getVelocidad()/1000d);
+            double distanciaX = distanciaARecorrer * relacionDistanciaXY/100;
+            double distanciaY = distanciaARecorrer * relacionDistanciaYX/100;
+            //System.out.println("Avance: "+distanciaX);
+            setX(getX()+distanciaX);
+            setY(getY()+distanciaY);
+            
+            if(impulsoX>0) impulsoX-=Math.abs(distanciaX);
+            else impulsoX+=Math.abs(distanciaX);
+            
+            if(impulsoY>0) impulsoY-=Math.abs(distanciaY);
+            else impulsoX+=Math.abs(distanciaY);
+          
+        }
+        //Double velocidadX = (double)velocidad * relacionDistanciaXY;
+        //Double velocidadY = (double)velocidad * relacionDistanciaYX;
+        
+        
+        //long tiempoTranscurrido = System.currentTimeMillis()-this.getRefreshTime();
+        
+  
+        
+        
+        /*
+        Double Xfinal = getX() + impulsoX;
+        Double Yfinal = getY() + impulsoY;
+        if (Math.abs(impulsoX) + Math.abs(impulsoY) > 20) {
             direccion = Lib.calcularRotacion(getX(), getY(), Xfinal, Yfinal);
         }
        
-        Double velocidadX = (double)velocidad * relacionDistanciaXY;
-        Double velocidadY = (double)velocidad * relacionDistanciaYX;
-        if (restanteX > 0) {
+        
+        if (impulsoX > 0) {
             setX(getX() - velocidadX);
-            restanteX = restanteX - velocidadX;
-            if (restanteX < velocidadX) {
-                restanteX = 0;
+            impulsoX = impulsoX - velocidadX;
+            if (impulsoX < velocidadX) {
+                impulsoX = 0;
             }
-        } else if (restanteX < 0) {
+        } else if (impulsoX < 0) {
             setX(getX() + velocidadX);
-            restanteX = restanteX + velocidadX;
+            impulsoX = impulsoX + velocidadX;
         }
-        if (restanteY > 0) {
+        if (impulsoY > 0) {
             setY(getY() - velocidadY);
-            restanteY = restanteY - velocidadY;
-            if (restanteY < velocidadY) {
-                restanteY = 0;
+            impulsoY = impulsoY - velocidadY;
+            if (impulsoY < velocidadY) {
+                impulsoY = 0;
             }
-        } else if (restanteY < 0) {
+        } else if (impulsoY < 0) {
             setY(getY() + velocidadY);
-            restanteY = restanteY + velocidadY;
+            impulsoY = impulsoY + velocidadY;
         }
-        if (restanteX == 0 & restanteY == 0) {
+        if (impulsoX == 0 & impulsoY == 0) {
             ++iterator;
             if (iterator == 10) {
                 setX(getX() + 1d);
@@ -72,6 +101,7 @@ extends Sprite {
                 iterator = 0;
             }
         }
+        */
         return this;
     }
 
@@ -84,25 +114,33 @@ extends Sprite {
     }
 
     public void setHp(Double hp) {
-        hp = hp;
+        this.hp = hp;
     }
 
     public void moveTo(Double x, Double y) {
         if (!Objects.equals(getX(), x) && !Objects.equals(getY(), y)) {
-            restanteX = getX() - (x - (double)(getWidth() / 2));
-            restanteY = getY() - (y - (double)(getHeight() / 2));
+            impulsoX = (x - (getWidth() / 2)) -getX()  ;
+            impulsoY = (y - (getHeight() / 2)) - getY()  ;
         }
-        Double Xfinal = getX() + restanteX;
-        Double Yfinal = getY() + restanteY;
-        direccion = Lib.calcularRotacion(getX(), getY(), Xfinal, Yfinal);
+        Double Xfinal = getX() + impulsoX;
+        Double Yfinal = getY() + impulsoY;
+        direccion = Lib.calcularRotacion(x,y,getX(), getY());
         calcularRelacionXY();
     }
 
     public void calcularRelacionXY() {
-        if (restanteX != 0 && restanteY != 0) {
-            relacionDistanciaXY = 100 * Math.abs(restanteX) / (Math.abs(restanteX) + Math.abs(restanteY)) / 100;
-            relacionDistanciaYX = 100 * Math.abs(restanteY) / (Math.abs(restanteX) + Math.abs(restanteY)) / 100;
-        }
+        //if (impulsoX != 0 && impulsoY != 0) {
+            relacionDistanciaXY = 100 * Math.abs(impulsoX) / (Math.abs(impulsoX) + Math.abs(impulsoY)) ;
+            relacionDistanciaYX = 100 * Math.abs(impulsoY) / (Math.abs(impulsoX) + Math.abs(impulsoY)) ;
+            if(impulsoX<0){
+                relacionDistanciaXY*= -1;
+            }
+            if(impulsoY<0){
+                relacionDistanciaYX*= -1;
+            }
+            System.out.println("Relacion XY: "+relacionDistanciaXY+" Relacion YX: "+relacionDistanciaYX);
+        //}
+        
     }
 
     public void rotar(Double x, Double y) {
@@ -122,28 +160,34 @@ extends Sprite {
 
     @Override
     public Nave putSprite(Graphics grafico) {
+        move();
+        //System.out.println(getRefreshTime());
         BufferedImage image = Lib.toBufferedImage(new ImageIcon(getClass().getResource(getSprite())).getImage());       
         image = ImageTransform.rotacionImagen(image, direccion);
         if (isVisible()) {
             grafico.drawImage(image, getX().intValue(), getY().intValue(), null);
         }
+        
+        setRefreshTime(System.currentTimeMillis());
+        //System.out.println(System.currentTimeMillis());
+        
         return this;
     }
 
     public Double getRestanteX() {
-        return restanteX;
+        return impulsoX;
     }
 
-    public void setRestanteX(Double restanteX) {
-        restanteX = restanteX;
+    public void setRestanteX(Double impulsoX) {
+        this.impulsoX = impulsoX;
     }
 
     public Double getRestanteY() {
-        return restanteY;
+        return impulsoY;
     }
 
-    public void setRestanteY(Double restanteY) {
-        restanteY = restanteY;
+    public void setRestanteY(Double impulsoY) {
+        this.impulsoY = impulsoY;
     }
 
     public int getIterator() {
@@ -151,7 +195,7 @@ extends Sprite {
     }
 
     public void setIterator(int iterator) {
-        iterator = iterator;
+        this.iterator = iterator;
     }
 
     public int getVelocidad() {
@@ -159,7 +203,7 @@ extends Sprite {
     }
 
     public void setVelocidad(int velocidad) {
-        velocidad = velocidad;
+        this.velocidad = velocidad;
     }
 
     public Double getRelacionDistanciaXY() {
@@ -167,7 +211,7 @@ extends Sprite {
     }
 
     public void setRelacionDistanciaXY(Double relacionDistanciaXY) {
-        relacionDistanciaXY = relacionDistanciaXY;
+        this.relacionDistanciaXY = relacionDistanciaXY;
     }
 
     public Double getRelacionDistanciaYX() {
@@ -175,7 +219,7 @@ extends Sprite {
     }
 
     public void setRelacionDistanciaYX(Double relacionDistanciaYX) {
-        relacionDistanciaYX = relacionDistanciaYX;
+        this.relacionDistanciaYX = relacionDistanciaYX;
     }
     
     public double getDamageAmplifier() {
@@ -183,7 +227,7 @@ extends Sprite {
     }
 
     public void setDamageAmplifier(double damageAmplifier) {
-        damageAmplifier = damageAmplifier;
+        this.damageAmplifier = damageAmplifier;
     }
 }
 

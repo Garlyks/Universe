@@ -5,7 +5,7 @@ import java.util.Objects;
 import javax.swing.ImageIcon;
 
 public class Sprite {
-    private Long lastRefresh = System.currentTimeMillis();
+    private Long refreshTime = System.currentTimeMillis();
     public Double x;
     public Double y;
     private Boolean visible = true;
@@ -68,6 +68,7 @@ public class Sprite {
     }
 
     public void putSprite(Graphics grafico, Double coordenadaHorizontal, Double coordenadaVertical) {
+        refreshTime = System.currentTimeMillis();
         x = coordenadaHorizontal;
         y = coordenadaVertical;
         if (visible) {
@@ -76,6 +77,7 @@ public class Sprite {
     }
 
     public Sprite putSprite(Graphics grafico) {
+        refreshTime = System.currentTimeMillis();
         if (visible) {
             grafico.drawImage(new ImageIcon(getClass().getResource(sprite)).getImage(), x.intValue(), y.intValue(), null);
         }
@@ -107,11 +109,11 @@ public class Sprite {
     }
 
     public long getLastRefresh() {
-        return lastRefresh;
+        return refreshTime;
     }
 
-    public void setLastRefresh(long lastRefresh) {
-        this.lastRefresh = lastRefresh;
+    public void setLastRefresh(long refreshTime) {
+        this.refreshTime = refreshTime;
     }
 
     public boolean isMustBeDestroy() {
@@ -126,7 +128,7 @@ public class Sprite {
     public int hashCode() {
         
         /*
-        private long lastRefresh = System.currentTimeMillis();
+        private long refreshTime = System.currentTimeMillis();
         public Double x;
         public Double y;
         private boolean visible = true;
@@ -135,7 +137,7 @@ public class Sprite {
         */
         
         int hash = 7;
-        hash = 13 * hash + lastRefresh.hashCode();
+        hash = 13 * hash + refreshTime.hashCode();
         hash = 13 * hash + (this.x != null ? this.x.hashCode() : 0);
         hash = 13 * hash + (this.y != null ? this.y.hashCode() : 0);
         hash = 13 * hash + (this.visible != null ? this.visible.hashCode() : 0);
@@ -146,7 +148,7 @@ public class Sprite {
 
     @Override
     public String toString() {
-        return "Sprite{" + "lastRefresh=" + lastRefresh + ", x=" + x + ", y=" + y + ", visible=" + visible + ", sprite=" + sprite + ", mustBeDestroy=" + mustBeDestroy + '}';
+        return "Sprite{" + "refreshTime=" + refreshTime + ", x=" + x + ", y=" + y + ", visible=" + visible + ", sprite=" + sprite + ", mustBeDestroy=" + mustBeDestroy + '}';
     }
 
     @Override
@@ -167,7 +169,7 @@ public class Sprite {
         if (!Objects.equals(this.sprite, other.sprite)) {
             return false;
         }
-        if (!Objects.equals(this.lastRefresh, other.lastRefresh)) {
+        if (!Objects.equals(this.refreshTime, other.refreshTime)) {
             return false;
         }
         if (!Objects.equals(this.x, other.x)) {
@@ -181,5 +183,14 @@ public class Sprite {
         }
         return true;
     }
+
+    public Long getRefreshTime() {
+        return refreshTime;
+    }
+
+    public void setRefreshTime(Long refreshTime) {
+        this.refreshTime = refreshTime;
+    }
+    
 }
 

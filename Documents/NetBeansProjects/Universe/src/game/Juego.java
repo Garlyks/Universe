@@ -53,16 +53,15 @@ public final class Juego extends Canvas {
         //myShip.setDamageAmplifier(25);
         
         //configurar y setear cantidad enemigos
-        configure();   
+        configureScreen();   
         whInit();
+        configureGame(); 
+        //spritesDinamicos.add(new Sprite().setSprite("/Imagenes/Marca/marca2b.png").setX(500d).setY(500d));
         threadGame.start();
         threadDibuja.start();
     }    
     
-    
-    public void configure(){
-        
-        marca = new Marca();
+    public void configureScreen(){
         ventana = new JFrame();
         ventana.setLayout(new BorderLayout());
        // controles = new JPanel();
@@ -79,6 +78,10 @@ public final class Juego extends Canvas {
                 System.exit(0);
             }
         });
+    }
+    public void configureGame(){
+        
+        marca = new Marca();        
          
         planeta.setSprite("/Imagenes/planeta-agua.png");
         fondo.setSprite("/Imagenes/space.jpg");
@@ -135,7 +138,6 @@ public final class Juego extends Canvas {
             fpsTime=System.currentTimeMillis();
             fpsActual = fps;
             fps=0;
-
         }
         //END FPS MANAGEMENT
         pantalla.getGraphics().drawString(fpsActual+" fps", 25, 25);
@@ -174,14 +176,14 @@ public final class Juego extends Canvas {
                 });
             });            
             
-            if (enemies.size() == 0) {
+            /*if (enemies.size() == 0) {
                 dificult++;
                 clear = true;
                 setClear();
-            }
+            }*/
             
             spritesDinamicos.stream().forEach(spriteDinamico->{
-                spriteDinamico.move();                
+                //spriteDinamico.move();                
             });
             
             
@@ -201,9 +203,10 @@ public final class Juego extends Canvas {
                     myShip.receiveDamage(COLLISION_DAMAGE);
                     enemy.receiveDamage(COLLISION_DAMAGE);
                 }
-                if ((tiempo % 103 == 0 || enemy.getRestanteX() == 0.0 && enemy.getRestanteY() == 0.0) && !enemy.isDestroing()){
+                if ((tiempo % 13 == 0 || enemy.getRestanteX() == 0.0 && enemy.getRestanteY() == 0.0) && !enemy.isDestroing()){
                     enemy.moveTo(Lib.getRandomWidth(this), Lib.getRandomHeight(this));
-                    if(proyectilesEnemigos.size()<maxEnemyLasers){                        
+                    if(proyectilesEnemigos.size()<maxEnemyLasers && System.currentTimeMillis()-enemy.getLastShotTime() > enemy.getMinShotInterval()){ 
+                        enemy.setLastShotTime(System.currentTimeMillis());
                         proyectilesEnemigos.add(new Laser(enemy,myShip));
                     }
                 } 
@@ -260,7 +263,7 @@ public final class Juego extends Canvas {
                     //Logger.getLogger(Juego.class.getName()).log(Level.INFO,"Test time "+ (System.currentTimeMillis() - tiempo));
                     tiempo = System.currentTimeMillis();
                     runGame();
-                    if(tiempo%2==0) whControl();
+                    if(tiempo%7==0) whControl();
                     //tiempo = System.currentTimeMillis();
                     /*try {
                         threadGame.sleep(100);
