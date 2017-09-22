@@ -37,12 +37,14 @@ extends Sprite {
     double shieldUntil = 0;
     int shieldPhase = 0;
     int destroyPhase = 0;
+    String spriteShielding;
     
     public static final long SHOT_RELOAD = 500;
+    public static final long SHIELDING_TIME = 2000;
     
     public Nave() {
         //super(this);
-        super.setSprite("/Imagenes/Nave/nave.png");
+        setSprite("/Imagenes/Nave/nave.png");
         super.setX(200d);
         super.setY(200d);
         
@@ -145,8 +147,8 @@ extends Sprite {
             grafico.fillRect(this.getX().intValue(), this.getY().intValue() + this.getHeight() + 5, new Double((double)this.getWidth() * porcentajeShield / 100d).intValue(), 2);
         }
         if (this.isDestroing) {
-            this.setImpulsoX(0);
-            this.setImpulsoY(0);
+            impulsoX = 0;
+            impulsoY = 0;
             if (++this.destroyPhase <= 90) {
                 String parte = this.destroyPhase < 10 ? "0" + this.destroyPhase : "" + this.destroyPhase;
                 this.setSprite("/Imagenes/Explosion/explosion1_00" + parte + ".png");
@@ -154,11 +156,6 @@ extends Sprite {
             } else {
                 this.destroy();
             }
-        } else if (this.shieldUntil-System.currentTimeMillis()>0) {   
-            String temp = this.getSprite();
-            this.setSprite(temp.replace(".", "_shielding."));
-            //super.putSprite(grafico);
-            this.setSprite(temp);          
         } else {
             if (this.shield < this.maxShield) {
                 shield += (System.currentTimeMillis()-getRefreshTime())*(shieldRegeneration/1000); 
@@ -166,8 +163,13 @@ extends Sprite {
             //super.putSprite(grafico);
         }
         move();
+        BufferedImage image;
+        if (this.shieldUntil-System.currentTimeMillis()>0) { //isShielding
+            image = Lib.toBufferedImage(new ImageIcon(getClass().getResource(spriteShielding)).getImage());       
+        }else{
+            image = Lib.toBufferedImage(new ImageIcon(getClass().getResource(sprite)).getImage());       
+        }
         
-        BufferedImage image = Lib.toBufferedImage(new ImageIcon(getClass().getResource(getSprite())).getImage());       
         image = ImageTransform.rotacionImagen(image, direccion);
         if (isVisible()) {
             grafico.drawImage(image, getX().intValue(), getY().intValue(), null);
@@ -179,6 +181,7 @@ extends Sprite {
     }
     
     public void receiveDamage(Double damage) {
+        shieldUntil = System.currentTimeMillis()+ SHIELDING_TIME;
         if (this.shield > 0d && damage > 0d) {
             double damage_absorbed;
             if (damage > this.shieldResistance) {
@@ -207,7 +210,7 @@ extends Sprite {
         if (this.hp > 0d && damage > 0d) {
             if (this.hp > damage) {
                 this.hp = this.hp - damage;
-                damage = 0d;
+                //damage = 0d;
             } else {
                 int anchoExplosion = new ImageIcon(this.getClass().getResource("/Imagenes/Explosion/explosion1_0001.png")).getImage().getWidth(null);
                 this.setX(this.getX() + new Double(this.getWidth() - anchoExplosion) / 2d);
@@ -289,7 +292,7 @@ extends Sprite {
 
     public void setImpulsoX(double impulsoX) {
         this.impulsoX = impulsoX;
-        calcularRelacionXY();
+        //calcularRelacionXY();
     }
 
     public double getImpulsoY() {
@@ -372,7 +375,13 @@ extends Sprite {
     }
     
     
-    
+    //@Override
+    @Override
+    public Nave setSprite(String spriteURL){
+        super.setSprite(spriteURL);
+        spriteShielding = sprite.replace(".", "_shielding.");
+        return this;
+    }
 
     
     

@@ -60,6 +60,7 @@ public class Sprite {
     }
     public Sprite setSprite(String url) {
         sprite = url;
+        
         return this;
     }
 

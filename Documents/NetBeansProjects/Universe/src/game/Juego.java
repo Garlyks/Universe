@@ -180,9 +180,9 @@ public final class Juego extends Canvas {
                 setClear();
             }
             
-            proyectilesEnemigos.stream().forEach(proyectilEnemigo->{
+            proyectilesEnemigos.stream().forEach((proyectilEnemigo)->{
                 if (myShip.intecerpta(proyectilEnemigo))
-                myShip.receiveDamage(((Laser)proyectilEnemigo).hit());
+                    myShip.receiveDamage(((Laser)proyectilEnemigo).hit());
             });            
             
             enemies.stream().forEach(enemy->{
@@ -416,8 +416,7 @@ public final class Juego extends Canvas {
                 myShip.setImpulsoX(50);
             }
             
-            myShip.rotar(myShip.getX()+myShip.getImpulsoX(), myShip.getX()+myShip.getImpulsoY());
-            //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            myShip.rotar(myShip.getX()+myShip.getImpulsoX(), myShip.getX()+myShip.getImpulsoY());            
         }
 
        
