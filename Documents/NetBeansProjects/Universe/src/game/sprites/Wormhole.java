@@ -18,7 +18,9 @@ import util.Lib;
 public class Wormhole extends Sprite{
     private long creationTime = System.currentTimeMillis();
     private long lastUsage = System.currentTimeMillis();
-    private int rotacion = 0;
+    private int ROTATION_INTERVAL = 50; //interval in Milliseconds to the next grade change
+    private long nextRotation = System.currentTimeMillis();
+    private double actualRotation = 0;
     
     private Wormhole exit ;
     
@@ -46,21 +48,21 @@ public class Wormhole extends Sprite{
     }
 
     public int getRotacion() {
-        return rotacion;
+        return ROTATION_INTERVAL;
     }
 
-    public void setRotacion(int rotacion) {
-        this.rotacion = rotacion;
+    public void setRotacion(int ROTATION_INTERVAL) {
+        this.ROTATION_INTERVAL = ROTATION_INTERVAL;
     }
     
  
     @Override
     public void putSprite(Graphics grafico, Double coordenadaHorizontal, Double coordenadaVertical) {
-        setX(x);
-        setY(y);
+        //setX(x);
+        //setY(y);
         BufferedImage image = Lib.toBufferedImage(new ImageIcon(getClass().getResource(getSprite())).getImage());
-        if(rotacion++>=360)rotacion = 0;        
-        image = ImageTransform.rotacionImagen(image,rotacion);
+        if(ROTATION_INTERVAL++>=360)ROTATION_INTERVAL = 0;        
+        image = ImageTransform.rotacionImagen(image,ROTATION_INTERVAL);
         if (isVisible()) {
             grafico.drawImage(image, getX().intValue(), getY().intValue(), null);
         }
@@ -69,8 +71,13 @@ public class Wormhole extends Sprite{
     public Wormhole putSprite(Graphics grafico) { 
        // System.out.println("Wormhole at X: "+getX().intValue()+" Y: "+ getY().intValue());
         BufferedImage image = Lib.toBufferedImage(new ImageIcon(getClass().getResource(getSprite())).getImage());
-        if(rotacion++>=360)rotacion = 0;        
-        image = ImageTransform.rotacionImagen(image,rotacion);
+               
+        if(nextRotation<= System.currentTimeMillis() ){
+            nextRotation = System.currentTimeMillis()+ROTATION_INTERVAL;
+            if(actualRotation++>=360)actualRotation = 0;             
+        }
+        
+        image = ImageTransform.rotacionImagen(image,actualRotation);
         if (isVisible()) {
             grafico.drawImage(image, getX().intValue(), getY().intValue(), null);
         }
@@ -78,7 +85,7 @@ public class Wormhole extends Sprite{
             
             //image = Lib.toBufferedImage(new ImageIcon(getClass().getResource(getExit().getSprite())).getImage());
             //if(getExit().getRotacion()>=360)getExit().setRotacion(0);        
-            //image = ImageTransform.rotacionImagen(image,rotacion);
+            //image = ImageTransform.ROTATION_INTERVALImagen(image,ROTATION_INTERVAL);
             if (isVisible()) {
                 grafico.drawImage(image, getExit().getX().intValue(), getExit().getY().intValue(), null);
             }

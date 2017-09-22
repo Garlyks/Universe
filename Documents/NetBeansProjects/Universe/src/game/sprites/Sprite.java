@@ -6,8 +6,8 @@ import javax.swing.ImageIcon;
 
 public class Sprite {
     private Long refreshTime = System.currentTimeMillis();
-    public Double x;
-    public Double y;
+    private Double x;
+    private Double y;
     private Boolean visible = true;
     public String sprite;
     private boolean mustBeDestroy = false;
@@ -116,25 +116,12 @@ public class Sprite {
         this.refreshTime = refreshTime;
     }
 
-    public boolean isMustBeDestroy() {
-        return mustBeDestroy;
-    }
-
-    public void setMustBeDestroy(boolean mustBeDestroy) {
+    public void setMustBeDestroy(boolean mustBeDestroy) {        
         this.mustBeDestroy = mustBeDestroy;
     } 
     
     @Override
     public int hashCode() {
-        
-        /*
-        private long refreshTime = System.currentTimeMillis();
-        public Double x;
-        public Double y;
-        private boolean visible = true;
-        public String sprite;
-        private boolean mustBeDestroy = false;
-        */
         
         int hash = 7;
         hash = 13 * hash + refreshTime.hashCode();

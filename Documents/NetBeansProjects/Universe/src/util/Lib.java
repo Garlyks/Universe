@@ -18,44 +18,9 @@ public class Lib {
     }
 
     public static Double calcularRotacion(Double Xinicial, Double Yinicial, Double Xfinal, Double Yfinal) {
-        Double grados;
-        Double factor;
-        Double relacion;
-        int cuadrante;
-        Double factorX = Xfinal- Xinicial;
-        Double factorY = Yfinal- Yinicial ;
-        Double anguloRadianes = Math.atan(factorY / factorX);
-        grados = Math.toDegrees(anguloRadianes);
-        if (Math.abs(factorX / factorY) < 1d){
-            factor = factorX / factorY;
-            relacion = factorY / factorX;
-            cuadrante = 1;
-        } else if (Math.abs(factorY / factorX) < 1d) {
-            factor = factorY / factorX;
-            relacion = factorX / factorY;
-            cuadrante = 2;
-        }
-        Boolean derecha = false;
-        Boolean arriba = false;
-        if (factorX > 0d) {
-            derecha = true;
-        }
-        if (factorY < 0d) {
-            arriba = true;
-        }
-        if (derecha && arriba) {
-            grados = 360d + grados;
-        }
-        if (!derecha && arriba) {
-            grados = 180d + grados;
-        }
-        if (!derecha && !arriba) {
-            grados = 180d + grados;
-        }
-        if (grados >= 360d) {
-            grados = 0d;
-        }
-        return grados;
+        //System.out.println("Impulso X "+(Yfinal-Yinicial)+" Impulso Y "+(Xfinal-Xinicial));
+        Double angulo = Math.atan2(Yfinal-Yinicial , Xfinal-Xinicial);
+        return (angulo > 0 ? angulo : (2*Math.PI + angulo)) * 360 / (2*Math.PI);        
     }
 
     public static Double getRandomHeight(Canvas canvas){
@@ -66,5 +31,7 @@ public class Lib {
     public static Double getRandomWidth(Canvas canvas){
         return 0d + (Math.random() * canvas.getWidth());
     }
+    
+    
 }
 

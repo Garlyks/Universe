@@ -5,10 +5,15 @@ import javax.swing.ImageIcon;
 
 public final class Marca
 extends Sprite {
-    int iterator = 0;
-    int tiempoActivo = 100;
-
+    final int INTERVAL = 250;
+    long intervalUntil;
+    final int ACTIVE_TIME = 5000;
+    long activeUntil = 0;
+    boolean change = false;
     public Marca() {
+        activeUntil = System.currentTimeMillis()+ACTIVE_TIME;
+        
+        intervalUntil =System.currentTimeMillis()+INTERVAL;
         this.setX(0d);
         this.setY(0d);
         this.setSprite("/Imagenes/Marca/marca1b.png");
@@ -16,6 +21,10 @@ extends Sprite {
     }
 
     public Marca(Double X, Double Y) {
+        
+        activeUntil = System.currentTimeMillis()+ACTIVE_TIME;
+        
+        intervalUntil =System.currentTimeMillis()+INTERVAL;
         this.setX(X);
         this.setY(Y);
         this.setSprite("/Imagenes/Marca/marca1b.png");
@@ -23,22 +32,27 @@ extends Sprite {
 
     @Override
     public Marca move() {
-        ++this.iterator;
-        if (this.iterator % 13 == 0) {
-            this.setSprite("/Imagenes/Marca/marca2b.png");
+        
+        //System.out.println(intervalUntil-System.currentTimeMillis());
+        //++this.iterator;
+        if (intervalUntil<System.currentTimeMillis()) {
+            //System.out.println(System.currentTimeMillis());
+            if (change){
+                this.setSprite("/Imagenes/Marca/marca2b.png");
+                change = false;
+            }else{
+                this.setSprite("/Imagenes/Marca/marca1b.png");
+                change = true;
+            }
+            intervalUntil =System.currentTimeMillis()+INTERVAL;
         }
-        if (this.iterator % 27 == 0) {
-            this.setSprite("/Imagenes/Marca/marca1b.png");
-        }
-        if (this.iterator > this.tiempoActivo) {
-            this.setVisible(false);
-            this.iterator = 0;
-        }
+        
         return this;
     }
 
     @Override
     public void putSprite(Graphics grafico, Double coordenadaHorizontal, Double coordenadaVertical) {
+        move();
         Double x1 = coordenadaHorizontal;
         Double y1 = coordenadaVertical;
         this.setX(x1);
@@ -47,11 +61,20 @@ extends Sprite {
             grafico.drawImage(new ImageIcon(this.getClass().getResource(this.getSprite())).getImage(), x1.intValue(), y1.intValue(), null);
         }
     }
-
+    @Override
+    public Marca putSprite(Graphics grafico) {
+        move();
+        super.putSprite(grafico);
+        return this;
+    }
     public void moveTo(Double x, Double y) {
+        move();
         this.setX(x - (double)(this.getWidth() / 2));
         this.setY(y - (double)(this.getHeight() / 2));
-        this.iterator = 0;
+        //this.iterator = 0;
+        activeUntil = System.currentTimeMillis()+ACTIVE_TIME;
+        intervalUntil =System.currentTimeMillis()+INTERVAL;
+        
     }
 }
 

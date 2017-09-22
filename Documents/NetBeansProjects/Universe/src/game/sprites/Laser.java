@@ -15,11 +15,14 @@ extends Sprite {
     Double restanteX = 0.0;
     Double restanteY = 0.0;
     double damage = 20.0;
-    int velocidad = 20;
+    int velocidad = 300;
     Double relacionDistanciaXY = 1.0;
     Double relacionDistanciaYX = 1.0;
     
-   
+    double impulsoX = 0;
+    double impulsoY = 0;
+    
+    long lifeTime = 1500;// lifetime en ms
     
     public Laser(Nave naveOrigen, Nave naveDestino) {
         damage *= naveOrigen.getDamageAmplifier();
@@ -40,40 +43,59 @@ extends Sprite {
         this.setX(Xi);
         double Yi = naveOrigen.getY() + (naveOrigen.getHeight() / 2);
         this.setY(Yi);   
-        configure(Xi,  Yi,  XDestino,  YDestino ); 
+        configure(Xi, Yi,  XDestino,  YDestino ); 
     }
     
-    public void configure(double Xi, double Yi, double Xd, double Yd ){
-        this.restanteX = Math.abs(Xi - Xd);
-        this.restanteY = Math.abs(Yi - Yd);
-        this.relacionDistanciaXY = 100.0 * this.restanteX / (this.restanteX + this.restanteY) / 100.0;
-        this.relacionDistanciaYX = 100.0 * this.restanteY / (this.restanteX + this.restanteY) / 100.0;
-        this.direccion = Lib.calcularRotacion(Xd, Yd, this.getX(), this.getY());
-        if (this.direccion >= 0.0 && this.direccion < 90.0) {
-            this.relacionDistanciaXY = 1.0 - this.relacionDistanciaYX;
+    private Laser configure(double Xi, double Yi, double Xd, double Yd ){       
+        direccion = Lib.calcularRotacion(Xi, Yi,Xd,Yd);
+        //System.out.println(direccion);
+        Xd-=getWidth()/2;
+        Yd-=getHeight()/2;
+
+        impulsoX = Xd-Xi;
+        impulsoY = Yd-Yi;
+        
+        relacionDistanciaXY = 100 * Math.abs(impulsoX) / (Math.abs(impulsoX) + Math.abs(impulsoY)) ;
+        relacionDistanciaYX = 100 * Math.abs(impulsoY) / (Math.abs(impulsoX) + Math.abs(impulsoY)) ;
+        if(impulsoX<0){
+            relacionDistanciaXY*= -1;
         }
-        if (this.direccion >= 90.0 && this.direccion < 180.0) {
-            this.relacionDistanciaXY = - this.relacionDistanciaXY;
+        if(impulsoY<0){
+            relacionDistanciaYX*= -1;
         }
-        if (this.direccion >= 180.0 && this.direccion < 270.0) {
-            this.relacionDistanciaXY = - this.relacionDistanciaXY;
-            this.relacionDistanciaYX = - this.relacionDistanciaYX;
-        }
-        if (this.direccion >= 270.0 && this.direccion < 360.0) {
-            this.relacionDistanciaYX = - this.relacionDistanciaYX;
-        }
-    }
-    
+        return this;
+    }    
  
+    @Override
     public Laser move() {
-        if (this.alcance > 0.0) {
-            this.setX(this.getX() + this.relacionDistanciaXY * (double)this.velocidad);
-            this.alcance = this.alcance - Math.abs(this.relacionDistanciaXY * (double)this.velocidad);
-            this.setY(this.getY() + this.relacionDistanciaYX * (double)this.velocidad);
-            this.alcance = this.alcance - Math.abs(this.relacionDistanciaYX * (double)this.velocidad);
-        } else {
-            this.destroy();
+        lifeTime -= System.currentTimeMillis()-getRefreshTime();
+        if(lifeTime<=0){
+            destroy();
+            return this;
         }
+        if(impulsoX!=0 || impulsoY!=0){
+            double distanciaARecorrer = (System.currentTimeMillis()-getRefreshTime())*(velocidad/1000d);
+            double distanciaX = distanciaARecorrer * relacionDistanciaXY/100;
+            double distanciaY = distanciaARecorrer * relacionDistanciaYX/100;
+            
+            setX(getX()+distanciaX);
+            setY(getY()+distanciaY);
+            
+            /*if(impulsoX>-0.5 && impulsoX<0.5){
+                impulsoX = 0;
+            }else{
+                if(impulsoX>0) impulsoX-=Math.abs(distanciaX);
+                else impulsoX+=Math.abs(distanciaX);
+            }
+            if(impulsoY>-0.5 && impulsoY<0.5){
+                impulsoY = 0;
+            }else{
+                if(impulsoY>0) impulsoY-=Math.abs(distanciaY);
+                else impulsoY+=Math.abs(distanciaY);
+            }*/
+        }else{
+            this.destroy(); 
+        }        
         return this;
     }
 
@@ -90,9 +112,8 @@ extends Sprite {
     public void putSprite(Graphics grafico, Double coordenadaHorizontal, Double coordenadaVertical) {
         this.setX(coordenadaHorizontal);
         this.setY(coordenadaVertical);
-        BufferedImage image = Lib.toBufferedImage(new ImageIcon(this.getClass().getResource(this.getSprite())).getImage());
-        Double direccionT = (double)this.direccion;
-        image = ImageTransform.rotacionImagen(image, direccionT);
+        BufferedImage image = Lib.toBufferedImage(new ImageIcon(this.getClass().getResource(this.getSprite())).getImage());        
+        image = ImageTransform.rotacionImagen(image, direccion);
         if (this.isVisible()) {
             grafico.drawImage(image, this.getX().intValue(), this.getY().intValue(), null);
         }
@@ -100,12 +121,14 @@ extends Sprite {
 
     @Override
     public Laser putSprite(Graphics grafico) {
+        move();
         BufferedImage image = Lib.toBufferedImage(new ImageIcon(this.getClass().getResource(this.getSprite())).getImage());
-        Double direccionT = (double)this.direccion;
-        image = ImageTransform.rotacionImagen(image, direccionT);
+        
+        image = ImageTransform.rotacionImagen(image, direccion);
         if (this.isVisible()) {
             grafico.drawImage(image, this.getX().intValue(), this.getY().intValue(), null);
         }
+        setRefreshTime(System.currentTimeMillis());
         return this;
     }
 
