@@ -24,16 +24,18 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import util.Lib;
 
-public final class Juego extends Canvas {
+public final class Game extends Canvas {
     private static int fps = 0;
-    private static int actualFps = 0;
+    private static long lastTime;
+    private static double actualFps = 0;
     private static long fpsTime = 0;
     private final CopyOnWriteArrayList<Sprite> spritesStaticos = new CopyOnWriteArrayList();
     private final CopyOnWriteArrayList<Sprite> spritesDinamicos = new CopyOnWriteArrayList();
-    private final CopyOnWriteArrayList<Nave> enemies = new CopyOnWriteArrayList();
-    private final CopyOnWriteArrayList<Sprite> proyectilesPropios = new CopyOnWriteArrayList();
+    private EnemyManager enemyManager;
+    //private final CopyOnWriteArrayList<Nave> enemies = new CopyOnWriteArrayList();
+    private final CopyOnWriteArrayList<Laser> proyectilesPropios = new CopyOnWriteArrayList();
     //private final ArrayList<Sprite> proyectilesPropios = new ArrayList();
-    private final CopyOnWriteArrayList<Sprite> proyectilesEnemigos = new CopyOnWriteArrayList();
+    private final CopyOnWriteArrayList<Laser> proyectilesEnemigos = new CopyOnWriteArrayList();
     private Frame ventana;
     private final Sprite planeta = new Sprite();
     private final Sprite fondo = new Sprite();
@@ -42,22 +44,25 @@ public final class Juego extends Canvas {
     BufferedImage pantalla;
     int refreshTime = 25;
     
-    static long tiempo = System.currentTimeMillis();
+    static long tiempo = System.nanoTime();
     
     JPanel controles;
-    private int dificult = 0;
+    private int dificult = 1;
     
     //private boolean clear = false;
     
     static final double COLLISION_DAMAGE = 2L;
     private final int MAX_ENEMY_LASER = 30;
     
-    public Juego(){
+    public Game(){
         //cheats
-        myShip.setMaxArmor(5000d);
-        myShip.setDamageAmplifier(25);
+        //myShip.setMaxArmor(5000d);
+        //myShip.setDamageAmplifier(25);
+        
+       
         
         //configurar y setear cantidad enemigos
+        enemyManager = new EnemyManager(this,dificult);
         configureScreen();   
         whInit();
         configureGame(); 
@@ -84,6 +89,7 @@ public final class Juego extends Canvas {
         });
     }
     public void configureGame(){
+        lastTime = System.currentTimeMillis();
         
         marca = new Marca();        
          
@@ -99,24 +105,26 @@ public final class Juego extends Canvas {
         KeyEvent kem = new KeyEvent();
         addMouseListener(new MouseEvent());        
         ventana.addKeyListener(kem);        
-        addKeyListener(kem);        
-        setClear();
+        addKeyListener(kem); 
+        enemyManager.restart(dificult);
+        //setClear();
     }
         
-    public void setClear(){
+    /*public void setClear(){
         //set enemies
         enemies.clear();
         for (int i = 0; i<dificult; i++){
             enemies.add((Nave) new Nave().setX(Lib.getRandomWidth(this)).setY(Lib.getRandomHeight(this)).setSprite("/Imagenes/Nave/splitter.png"));
         }
-    }
+    }*/
     
     public void paintGraphics(Graphics grafico){
         try{
             proyectilesPropios.removeIf(proyectilPropio->(proyectilPropio.mustBeDestroy()));
             spritesDinamicos.removeIf(spriteDinamico->(spriteDinamico.mustBeDestroy()));
             proyectilesEnemigos.removeIf(proyectil->(proyectil.mustBeDestroy()));
-            enemies.removeIf(enemy->(enemy.mustBeDestroy()));
+            enemyManager.checkDestroyed();
+            //enemies.removeIf(enemy->(enemy.mustBeDestroy()));
             
             pantalla = new BufferedImage(getWidth(), getHeight(), 1);
             spritesStaticos.stream().forEach((Sprite spriteStatico)->{
@@ -134,23 +142,26 @@ public final class Juego extends Canvas {
             proyectilesEnemigos.stream().forEach(proyectil->{
                 if(proyectil!= null)(proyectil).putSprite(pantalla.getGraphics());
             });
-
-            enemies.stream().forEach(proyectil->{
+                        
+            enemyManager.getEnemies().stream().forEach(proyectil->{
                 ((Sprite)proyectil).putSprite(pantalla.getGraphics());
             });
             
         }catch(Exception e){
-            //Logger.getLogger(Juego.class.getName()).log(Level.SEVERE,"Test time "+ (System.currentTimeMillis() - tiempo),e);
+            Logger.getLogger(Game.class.getName()).log(Level.SEVERE,"Test time "+ (System.currentTimeMillis() - tiempo),e);            
             paintGraphics(grafico);
         }
         //FPS MANAGEMENT
         fps++;
+        //actualFps = 1000000000.0 / (System.nanoTime()-lastTime);
+        lastTime=System.nanoTime();
         if(System.currentTimeMillis()-fpsTime>1000){
             fpsTime=System.currentTimeMillis();
             actualFps = fps;
             fps=0;
         }
-        pantalla.getGraphics().drawString(actualFps+" fps", 25, 25);
+        //enemyManager.drawEnemies();
+        pantalla.getGraphics().drawString((int)actualFps+" fps", 25, 25);
         //END FPS MANAGEMENT
         
         //DIFICULT MESSAGE MANAGEMENT
@@ -161,31 +172,31 @@ public final class Juego extends Canvas {
     }    
     
     public void runGame(){
-                        
             if (marca.isVisible() && marca.intecerpta(myShip)) {
                 marca.setVisible(false);
-            } 
-            proyectilesPropios.stream().forEach(proyectilPropio->{
+            }
+            enemyManager.checkImpacts(proyectilesPropios);
+            /*proyectilesPropios.stream().forEach(proyectilPropio->{
                 proyectilPropio.move();
                 enemies.stream().forEach(enemy->{
                     if(enemy.intecerpta(proyectilPropio)){
                         enemy.receiveDamage(((Laser)proyectilPropio).hit());
                     }
                 });
-            });            
+            });
             
             if (enemies.isEmpty()) {
                 dificult++;
                 //clear = true;
                 setClear();
-            }
+            }*/
             
             proyectilesEnemigos.stream().forEach((proyectilEnemigo)->{
                 if (myShip.intecerpta(proyectilEnemigo))
                     myShip.receiveDamage(((Laser)proyectilEnemigo).hit());
             });            
             
-            enemies.stream().forEach(enemy->{
+            /*enemies.stream().forEach(enemy->{
                 if(myShip.intecerpta(enemy)){
                     myShip.receiveDamage(COLLISION_DAMAGE);
                     enemy.receiveDamage(COLLISION_DAMAGE);
@@ -197,7 +208,7 @@ public final class Juego extends Canvas {
                 if ((tiempo % 13 == 0 || enemy.getRestanteX() == 0.0 && enemy.getRestanteY() == 0.0) && !enemy.isDestroing()){
                     enemy.moveTo(Lib.getRandomWidth(this), Lib.getRandomHeight(this));                    
                 }
-            });
+            });*/
     }
     
     public void whInit(){
@@ -247,7 +258,7 @@ public final class Juego extends Canvas {
             do {
                 if (System.currentTimeMillis() - tiempo >= refreshTime) {
                     
-                    //Logger.getLogger(Juego.class.getName()).log(Level.INFO,"Test time "+ (System.currentTimeMillis() - tiempo));
+                    //Logger.getLogger(Game.class.getName()).log(Level.INFO,"Test time "+ (System.currentTimeMillis() - tiempo));
                     tiempo = System.currentTimeMillis();
                     runGame();
                     if(tiempo%7==0) whControl();
@@ -255,14 +266,14 @@ public final class Juego extends Canvas {
                     /*try {
                         threadGame.sleep(100);
                     } catch (InterruptedException ex) {
-                        Logger.getLogger(Juego.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
                     }*/
                     
                 }else{  
                     try {
                         threadGame.sleep(Math.abs(refreshTime- (System.currentTimeMillis() - tiempo)));
                     } catch (InterruptedException ex) {
-                        Logger.getLogger(Juego.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     
                 }                
@@ -286,11 +297,11 @@ public final class Juego extends Canvas {
                     /*try {
                         threadDibuja.sleep(25);
                     } catch (InterruptedException ex) {
-                        Logger.getLogger(Juego.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
                     }*/
                     
                // } else {
-                    //Logger.getLogger(Juego.class.getName()).log(Level.INFO, "Paint at "+System.currentTimeMillis() );
+                    //Logger.getLogger(Game.class.getName()).log(Level.INFO, "Paint at "+System.currentTimeMillis() );
                     
                 //}
             } while (true);
@@ -309,7 +320,7 @@ public final class Juego extends Canvas {
     });
     
     public static void main(String[] arg) {
-        Juego game = new Juego();
+        Game game = new Game();
     }
     
     
