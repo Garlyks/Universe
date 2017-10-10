@@ -26,7 +26,6 @@ import util.Lib;
 
 public final class Game extends Canvas {
     private static int fps = 0;
-    private static long lastTime;
     private static double actualFps = 0;
     private static long fpsTime = 0;
     private final CopyOnWriteArrayList<Sprite> spritesStaticos = new CopyOnWriteArrayList();
@@ -40,7 +39,7 @@ public final class Game extends Canvas {
     private final Sprite planeta = new Sprite();
     private final Sprite fondo = new Sprite();
     private final Nave myShip = new Nave();
-    private Marca marca;
+    private Marca marca = new Marca();;
     BufferedImage pantalla;
     int refreshTime = 25;
     
@@ -73,7 +72,7 @@ public final class Game extends Canvas {
     public void configureScreen(){
         ventana = new JFrame();
         ventana.setLayout(new BorderLayout());
-       // controles = new JPanel();
+        //controles = new JPanel();
         //controles.add(new JButton("OK"));
         //ventana.add((Component)controles, "South");
         ventana.setSize(1024, 500);
@@ -89,9 +88,8 @@ public final class Game extends Canvas {
         });
     }
     public void configureGame(){
-        lastTime = System.currentTimeMillis();
         
-        marca = new Marca();        
+            
          
         planeta.setSprite("/Imagenes/planeta-agua.png");
         fondo.setSprite("/Imagenes/space.jpg");
@@ -124,7 +122,6 @@ public final class Game extends Canvas {
             spritesDinamicos.removeIf(spriteDinamico->(spriteDinamico.mustBeDestroy()));
             proyectilesEnemigos.removeIf(proyectil->(proyectil.mustBeDestroy()));
             enemyManager.checkDestroyed();
-            //enemies.removeIf(enemy->(enemy.mustBeDestroy()));
             
             pantalla = new BufferedImage(getWidth(), getHeight(), 1);
             spritesStaticos.stream().forEach((Sprite spriteStatico)->{
@@ -144,7 +141,7 @@ public final class Game extends Canvas {
             });
                         
             enemyManager.getEnemies().stream().forEach(proyectil->{
-                ((Sprite)proyectil).putSprite(pantalla.getGraphics());
+                if(proyectil!=null) ((Sprite)proyectil).putSprite(pantalla.getGraphics());
             });
             
         }catch(Exception e){
@@ -152,13 +149,15 @@ public final class Game extends Canvas {
             paintGraphics(grafico);
         }
         //FPS MANAGEMENT
-        fps++;
-        //actualFps = 1000000000.0 / (System.nanoTime()-lastTime);
-        lastTime=System.nanoTime();
+        fps++;      
         if(System.currentTimeMillis()-fpsTime>1000){
             fpsTime=System.currentTimeMillis();
             actualFps = fps;
             fps=0;
+        }else if(System.currentTimeMillis()-fpsTime>0){
+            //System.out.println((System.currentTimeMillis()-fpsTime));
+            actualFps = (System.currentTimeMillis()-fpsTime);
+            actualFps = fps/(actualFps/1000);
         }
         //enemyManager.drawEnemies();
         pantalla.getGraphics().drawString((int)actualFps+" fps", 25, 25);
@@ -172,24 +171,14 @@ public final class Game extends Canvas {
     }    
     
     public void runGame(){
-            if (marca.isVisible() && marca.intecerpta(myShip)) {
+            
+            if (myShip.intecerpta(marca) && marca.isVisible()) {
                 marca.setVisible(false);
             }
             enemyManager.checkImpacts(proyectilesPropios);
-            /*proyectilesPropios.stream().forEach(proyectilPropio->{
-                proyectilPropio.move();
-                enemies.stream().forEach(enemy->{
-                    if(enemy.intecerpta(proyectilPropio)){
-                        enemy.receiveDamage(((Laser)proyectilPropio).hit());
-                    }
-                });
-            });
-            
-            if (enemies.isEmpty()) {
-                dificult++;
-                //clear = true;
-                setClear();
-            }*/
+            if (enemyManager.getEnemies().isEmpty()) {
+                enemyManager.restart(++dificult);
+            }
             
             proyectilesEnemigos.stream().forEach((proyectilEnemigo)->{
                 if (myShip.intecerpta(proyectilEnemigo))
@@ -234,30 +223,25 @@ public final class Game extends Canvas {
                     whActual.setLastUsage(System.currentTimeMillis());
                     sprite.setX(whActual.getExit().getX())
                           .setY(whActual.getExit().getY());   
-                    marca.setVisible(false);
-                    
+                    marca.setVisible(false);                    
                 }
                 if(whActual.getExit().intecerpta(sprite) && !sprite.equals(whActual) && System.currentTimeMillis()-whActual.getLastUsage()>2000){
                     sprite.setX(whActual.getX())
                           .setY(whActual.getY()); 
                     whActual.setLastUsage(System.currentTimeMillis());
                     marca.setVisible(false);
-                }
-                
+                }                
             });
-            
-                
-            
         });
     }
     
     Thread threadGame = new Thread(new Runnable() {
         @Override
         public void run() {
-            
+            tiempo = System.currentTimeMillis();
             do {
-                if (System.currentTimeMillis() - tiempo >= refreshTime) {
-                    
+                
+                if (System.currentTimeMillis() - tiempo >= refreshTime) {                    
                     //Logger.getLogger(Game.class.getName()).log(Level.INFO,"Test time "+ (System.currentTimeMillis() - tiempo));
                     tiempo = System.currentTimeMillis();
                     runGame();
@@ -271,7 +255,7 @@ public final class Game extends Canvas {
                     
                 }else{  
                     try {
-                        threadGame.sleep(Math.abs(refreshTime- (System.currentTimeMillis() - tiempo)));
+                        threadGame.sleep(Math.abs(refreshTime - (System.currentTimeMillis() - tiempo)));
                     } catch (InterruptedException ex) {
                         Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
                     }

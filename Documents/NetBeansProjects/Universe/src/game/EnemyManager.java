@@ -62,8 +62,8 @@ public class EnemyManager {
             isCheckingImpacts = false;
         }).start();       
     }
-    public void checkMoves(){        
-        new Thread(() -> {
+    public synchronized void checkMoves(){        
+        new Thread(() -> {            
             isCheckingMoves= true;//asegura q futuros hilos no se pisen con este
             enemies.stream().forEach(enemy->{
                 if(enemy.getImpulsoX()+enemy.getImpulsoY()==0){

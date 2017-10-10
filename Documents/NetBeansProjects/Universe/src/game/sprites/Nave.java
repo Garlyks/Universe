@@ -164,7 +164,7 @@ extends Sprite {
         }
         move();
         BufferedImage image;
-        if (this.shieldUntil-System.currentTimeMillis()>0) { //isShielding
+        if (this.shieldUntil-System.currentTimeMillis()>0 && !this.isDestroing) { //isShielding
             image = Lib.toBufferedImage(new ImageIcon(getClass().getResource(spriteShielding)).getImage());       
         }else{
             image = Lib.toBufferedImage(new ImageIcon(getClass().getResource(sprite)).getImage());       
@@ -181,8 +181,10 @@ extends Sprite {
     }
     
     public void receiveDamage(Double damage) {
-        shieldUntil = System.currentTimeMillis()+ SHIELDING_TIME;
+       
+        
         if (this.shield > 0d && damage > 0d) {
+            shieldUntil = System.currentTimeMillis()+ SHIELDING_TIME;
             double damage_absorbed;
             if (damage > this.shieldResistance) {
                 damage_absorbed = this.shieldResistance;
